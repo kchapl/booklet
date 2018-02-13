@@ -1,0 +1,15 @@
+@(books: Seq[model.Book])
+
+<html>
+  <head>
+    <title>Readings</title>
+  </head>
+  <body>
+    @for(book <- books) {
+      <div>
+        <div>@book.title</div>
+        <div>@book.author</div>
+      </div>
+    }
+  </body>
+</html>
