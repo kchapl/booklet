@@ -6,6 +6,9 @@ CREATE TABLE Books (
   title  VARCHAR(255) NOT NULL
 );
 
+INSERT INTO Books VALUES ('1', 'a', 't');
+
+
 # --- !Downs
 
 DROP TABLE Books;
