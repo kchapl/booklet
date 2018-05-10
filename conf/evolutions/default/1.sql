@@ -1,14 +1,25 @@
 # --- !Ups
 
-CREATE TABLE Books (
-  id     VARCHAR(20) PRIMARY KEY,
-  author VARCHAR(255) NOT NULL,
-  title  VARCHAR(255) NOT NULL
+create table Books (
+  id     varchar(20) primary key,
+  author varchar(255) not null,
+  title  varchar(255) not null
 );
 
-INSERT INTO Books VALUES ('1', 'a', 't');
+create table Readings (
+  id        varchar(20) primary key,
+  bookId    varchar(20) not null,
+  completed date        not null,
+  rating    smallint    not null
+);
+
+insert into Books values ('1', 'a', 't');
+
+insert into Readings values ('1', '1', '2018-05-10', 3);
 
 
 # --- !Downs
 
-DROP TABLE Books;
+drop table Readings;
+
+drop table Books;
