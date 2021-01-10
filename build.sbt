@@ -1,19 +1,15 @@
 name := "booklet"
 
-version := "1.0-SNAPSHOT"
-
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.13.4"
 
 libraryDependencies ++= Seq(
   jdbc,
   evolutions,
-  "com.typesafe.play" %% "anorm" % "2.5.3",
-  // "com.typesafe.play" %% "play-slick" % "3.0.3",
-  // "com.h2database"         % "h2"                  % "1.4.196",
-  "org.postgresql"         % "postgresql"          % "42.2.2",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test"
+  "org.playframework.anorm" %% "anorm"              % "2.6.8",
+  "org.postgresql"          % "postgresql"          % "42.2.18",
+  "org.scalatestplus.play"  %% "scalatestplus-play" % "5.1.0" % "test"
 )
 
 scalafmtOnCompile := true
