@@ -14,10 +14,16 @@ object Reading {
   private def toLocalDate(d: util.Date) = new sql.Date(d.getTime).toLocalDate
 
   private val parser =
-    str("readingId") ~ date("completed") ~ int("rating") ~ str("bookId") ~ str("author") ~ str(
-      "title") map {
+    str("readingId") ~ date("completed") ~ int("rating") ~ str("bookId") ~ str(
+      "author"
+    ) ~ str("title") map {
       case readingId ~ completed ~ rating ~ bookId ~ author ~ title =>
-        Reading(readingId, Book(bookId, author, title), toLocalDate(completed), rating)
+        Reading(
+          readingId,
+          Book(bookId, author, title),
+          toLocalDate(completed),
+          rating
+        )
     }
 
   def all(implicit db: Database): Seq[Reading] = {
