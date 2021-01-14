@@ -1,34 +1,38 @@
 package controllers
 
-import model.{Book, Reading}
-import play.api.db.Database
+import cats.data.NonEmptyList
+import cats.effect.{ContextShift, IO}
+import config.Config
+import doobie._
+import doobie.implicits._
+import model.Book
 import play.api.mvc._
-import zio.{ZEnv, ZIO}
+import pureconfig._
+import pureconfig.generic.auto._
 
-class ReadingController(components: ControllerComponents)(implicit db: Database)
+import scala.concurrent.ExecutionContext
+
+class ReadingController(components: ControllerComponents)
     extends AbstractController(components) {
 
-  private val runtime = zio.Runtime.default
-
-  def listReadings(): Action[AnyContent] = Action { _ =>
-    val books    = Book.all
-    val readings = Reading.all
-    readings.foreach(println)
-    println(readings.size)
-    Ok(views.html.readings(books))
-  }
-
-  def listReadings2(): Action[AnyContent] = zioAction { _ =>
-    val books = Seq(
-      Book(id = "1", author = "a1", title = "t1"),
-      Book(id = "2", author = "a1", title = "t2"),
-      Book(id = "3", author = "a2", title = "t4")
-    )
-    ZIO(Ok(views.html.readings(books)))
-  }
-
-  private def zioAction(
-      result: Request[AnyContent] => ZIO[ZEnv, Throwable, Result]
-  ): Action[AnyContent] =
-    Action(request => runtime.unsafeRun(result(request)))
+  def listReadings(): Action[AnyContent] =
+    Action { _ =>
+      val y = ConfigSource.default.loadOrThrow[Config]
+      implicit val cs: ContextShift[IO] =
+        IO.contextShift(ExecutionContext.global)
+      val xa =
+        Transactor.fromDriverManager[IO](
+          driver = y.dbDriver,
+          url = y.dbUrl,
+          user = y.dbUser,
+          pass = y.dbPass
+        )
+      def findAll: ConnectionIO[NonEmptyList[Book]] =
+        sql"select id, author, title from books"
+          .query[Book]
+          .nel
+      val x     = findAll.transact(xa).unsafeRunSync()
+      val books = x.toList
+      Ok(views.html.readings(books))
+    }
 }

@@ -3,7 +3,7 @@ package controllers
 import model.Book
 import play.api.mvc._
 
-class App(components: ControllerComponents) //(implicit dbConfig: DatabaseConfig[H2Profile])
+class App(components: ControllerComponents)
     extends AbstractController(components) {
 
   def index() = Action { _ =>

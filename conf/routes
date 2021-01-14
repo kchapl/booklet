@@ -1,4 +1,3 @@
 GET        /                    controllers.App.index()
 
 GET /test controllers.ReadingController.listReadings()
-GET /test2 controllers.ReadingController.listReadings2()
