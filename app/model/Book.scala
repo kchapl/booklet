@@ -3,9 +3,9 @@ package model
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, IO}
 import config.Config.config
+import doobie.Transactor
 import doobie.implicits._
 import doobie.util.transactor.Transactor.Aux
-import doobie.{ConnectionIO, Transactor}
 
 import scala.concurrent.ExecutionContext
 
@@ -16,7 +16,7 @@ object Book {
   private implicit val cs: ContextShift[IO] =
     IO.contextShift(ExecutionContext.global)
 
-  private val xa: Aux[IO, Unit] = Transactor.fromDriverManager[IO](
+  val xa: Aux[IO, Unit] = Transactor.fromDriverManager[IO](
     driver = config.dbDriver,
     url = config.dbUrl,
     user = config.dbUser,
@@ -24,10 +24,11 @@ object Book {
   )
 
   def findAll(): IO[NonEmptyList[Book]] =
-    findAllQuery.transact(xa)
+    Queries.fetchAll.nel.transact(xa)
 
-  private def findAllQuery: ConnectionIO[NonEmptyList[Book]] =
-    sql"select id, author, title from books"
-      .query[Book]
-      .nel
+  object Queries {
+    val fetchAll: doobie.Query0[Book] =
+      sql"select id, author, title from books"
+        .query[Book]
+  }
 }
