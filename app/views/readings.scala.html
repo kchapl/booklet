@@ -1,15 +1,19 @@
-@(books: Seq[model.Book])
+@(readings: Seq[model.Reading])
 
 <html>
   <head>
     <title>Readings</title>
   </head>
   <body>
-    @for(book <- books) {
-      <div>
-        <div>@book.title</div>
-        <div>@book.author</div>
-      </div>
+    <table>
+    @for(reading <- readings) {
+      <tr>
+        <td>@reading.book.author</td>
+        <td>@reading.book.title</td>
+        <td>@reading.completed</td>
+        <td>@reading.rating</td>
+      </tr>
     }
+    </table>
   </body>
 </html>

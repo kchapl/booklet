@@ -1,33 +1,32 @@
 package model
 
+import doobie.implicits._
+import model.Db.xa
+import zio.Task
+import zio.interop.catz._
+
 import java.time.LocalDate
-import java.{sql, util}
+//import java.{sql, util}
 
 case class Reading(id: String, book: Book, completed: LocalDate, rating: Int)
 
 object Reading {
 
-  private def toLocalDate(d: util.Date) = new sql.Date(d.getTime).toLocalDate
+//  private def toLocalDate(d: util.Date) = new sql.Date(d.getTime).toLocalDate
 
-//  private val parser =
-//    str("readingId") ~ date("completed") ~ int("rating") ~ str("bookId") ~ str(
-//      "author"
-//    ) ~ str("title") map {
-//      case readingId ~ completed ~ rating ~ bookId ~ author ~ title =>
-//        Reading(
-//          readingId,
-//          Book(bookId, author, title),
-//          toLocalDate(completed),
-//          rating
-//        )
-//    }
+//  def fetchAll(): Task[List[Reading]] = Task(
+//    List(
+//      Reading("1", Book("1", "a1", "t1"), LocalDate.parse("2021-02-02"), 5),
+//      Reading("2", Book("2", "a2", "t2"), LocalDate.parse("2021-01-02"), 5),
+//      Reading("3", Book("1", "a1", "t1"), LocalDate.parse("2021-01-07"), 5)
+//    )
+//  )
+  def fetchAll(): Task[List[Reading]] = Queries.fetchAll.to[List].transact(xa)
 
-//  def all(implicit db: Database): Seq[Reading] = {
-//    db.withConnection { implicit conn =>
-//      val qry =
-//        "select r.id as readingId, r.completed, r.rating, b.id as bookId, b.author, b.title " +
-//          "from Readings r join Books b on r.bookId = b.id"
-//      SQL(qry).as(parser.*)
-//    }
-//  }
+  object Queries {
+    val fetchAll: doobie.Query0[Reading] =
+      sql"""SELECT r.id AS readingId, r.completed, r.rating, b.id AS bookId, b.author, b.title 
+           FROM Readings r JOIN Books b ON r.bookId = b.id"""
+        .query[Reading]
+  }
 }

@@ -3,8 +3,7 @@ package controllers
 import model.Book
 import play.api.mvc._
 
-class App(components: ControllerComponents)
-    extends AbstractController(components) {
+class App(components: ControllerComponents) extends AbstractController(components) {
 
   def index() = Action { _ =>
 //    Book.setup()

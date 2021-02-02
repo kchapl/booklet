@@ -8,5 +8,5 @@ object IoAction {
   def apply(action: ActionBuilder[Request, AnyContent])(
       result: Request[AnyContent] => IO[Result]
   ): Action[AnyContent] =
-    action(request => result(request).unsafeRunSync())
+    action.async(request => result(request).unsafeToFuture())
 }
