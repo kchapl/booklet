@@ -1,13 +1,12 @@
 package controllers
 
 import play.api.mvc._
-import zio.{ZEnv, ZIO}
+import zio.{URIO, ZEnv}
 
 abstract class AbstractZioController(components: ControllerComponents)
     extends AbstractController(components) {
 
-  protected def ZioAction
-      : (Request[AnyContent] => ZIO[ZEnv, Throwable, Result]) => Action[AnyContent] =
+  protected def ZioAction: (Request[AnyContent] => URIO[ZEnv, Result]) => Action[AnyContent] =
     AbstractZioController(Action)
 }
 
@@ -16,7 +15,7 @@ object AbstractZioController {
 
   def apply(
       action: ActionBuilder[Request, AnyContent]
-  )(result: Request[AnyContent] => ZIO[ZEnv, Throwable, Result]): Action[AnyContent] =
+  )(result: Request[AnyContent] => URIO[ZEnv, Result]): Action[AnyContent] =
     action.async { request =>
       runtime.unsafeRunToFuture(result(request))
     }

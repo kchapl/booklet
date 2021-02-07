@@ -5,7 +5,7 @@ import model.Db.xa
 import zio.Task
 import zio.interop.catz._
 
-case class Book(id: String, author: String, title: String)
+case class Book(id: Int, author: String, title: String)
 
 object Book {
 

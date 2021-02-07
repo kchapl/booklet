@@ -8,10 +8,12 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class BookQueriesTestSuite extends AnyFunSuite with IOChecker {
 
-  override val transactor: Aux[IO, Unit] = {
-    implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)
-    Book.xa
-  }
+//  override val transactor: Aux[IO, Unit] = {
+//    implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)
+//    Db.xa
+//  }
 
   test("fetchAll")(check(Book.Queries.fetchAll))
+
+  override def transactor: doobie.Transactor[IO] = ???
 }
