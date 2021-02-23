@@ -2,8 +2,8 @@ package controllers
 
 import model.{Book, Reading}
 import play.api.mvc._
+import services.book_finder.{BookFinder, LiveBookFinder}
 import services.database.{Database, LiveDatabase}
-import services.isbn.{Isbn, TestIsbn}
 
 import java.time.LocalDate
 
@@ -35,12 +35,15 @@ class ReadingController(components: ControllerComponents)
 
   def lookUpBook(isbn: String): Action[AnyContent] =
     ZioAction { _ =>
-      Isbn
-        .lookUp(isbn)
-        .provideCustomLayer(TestIsbn.impl)
+      BookFinder
+        .findByIsbn(isbn)
+        .provideCustomLayer(LiveBookFinder.impl)
         .fold(
           e => InternalServerError(e.getMessage),
-          book => Ok(views.html.books(Seq(book.get)))
+          {
+            case Some(book) => Ok(views.html.books(Seq(book)))
+            case None       => NotFound
+          }
         )
     }
 }
