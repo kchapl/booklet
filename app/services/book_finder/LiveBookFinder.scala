@@ -2,7 +2,7 @@ package services.book_finder
 
 import model.Book
 import okhttp3._
-import upickle.default.{read, _}
+import services.book_finder.OptionPickler._
 import zio._
 
 object LiveBookFinder {
@@ -49,19 +49,20 @@ object LiveBookFinder {
       else None
   }
 
-  val impl: ZLayer[Any, Throwable, BookFinder] = {
+  val impl: ZLayer[Any, Nothing, BookFinder] = {
     val client = new OkHttpClient()
     ZLayer.succeed { isbn =>
       val request = new Request.Builder()
         .url(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
         .build()
       val response = client.newCall(request).execute()
-      val b        = response.body.string
-      val x        =
-        //      val googleBookResult = read[GoogleBookResult](response.body.string)
-        ZIO.effect(read[GoogleBookResult](b)).map(GoogleBookResult.toBook)
-      println(b)
-      x
+      val body     = response.body.string
+      ZIO
+        .effect(read[GoogleBookResult](body))
+        .bimap(
+          e => new RuntimeException(s"Could not parse:\n$body\n$e", e),
+          GoogleBookResult.toBook
+        )
     }
   }
 }
