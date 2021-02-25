@@ -4,5 +4,6 @@ import model.Book
 import zio._
 
 object TestBookFinder {
-  val impl: ZLayer[Any, Nothing, BookFinder] = ZLayer.succeed(_ => Task(Some(Book("a4", "t7"))))
+  val impl: ZLayer[Any, Nothing, BookFinder] =
+    ZLayer.succeed(_ => Task(Some(Book("a4", "t7", Some("i8"), None))))
 }

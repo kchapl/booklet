@@ -36,7 +36,7 @@ object LiveDatabase {
       Put[Date].contramap(date => sql.Date.valueOf(date))
 
     implicit val bookRead: Read[Book] =
-      Read[(String, String)].map { case (author, title) => Book(author, title) }
+      Read[(String, String)].map { case (author, title) => Book(author, title, None, None) }
 
     implicit val readingRead: Read[Reading] =
       Read[(Book, LocalDate, Int)].map { case (book, completed, rating) =>

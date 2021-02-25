@@ -23,7 +23,7 @@ class ReadingController(components: ControllerComponents)
 
   def createReading(): Action[AnyContent] =
     ZioAction { _ =>
-      val reading = Reading(Book("a3", "t3"), LocalDate.now, 3)
+      val reading = Reading(Book("a3", "t3", Some("i4"), None), LocalDate.now, 3)
       Database
         .insertReading(reading)
         .provideCustomLayer(LiveDatabase.impl)

@@ -43,9 +43,15 @@ object LiveBookFinder {
     def toBook(result: GoogleBookResult): Option[Book] =
       if (result.totalItems == 1)
         for {
-          item   <- result.items.headOption
-          author <- item.volumeInfo.authors.headOption
-        } yield Book(author, title = item.volumeInfo.title)
+          item <- result.items.headOption
+          info = item.volumeInfo
+          author <- info.authors.headOption
+        } yield Book(
+          author,
+          title = info.title,
+          thumbnail = Some(info.imageLinks.thumbnail),
+          smallThumbnail = Some(info.imageLinks.smallThumbnail)
+        )
       else None
   }
 
