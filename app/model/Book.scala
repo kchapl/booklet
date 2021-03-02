@@ -2,8 +2,9 @@ package model
 
 case class Book(
     id: Long,
-    author: String,
-    title: String,
+    author: Author,
+    title: Title,
+    subtitle: Option[Subtitle],
     thumbnail: Option[String],
     smallThumbnail: Option[String]
 )

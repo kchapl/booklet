@@ -1,6 +1,6 @@
 package services.book_finder
 
-import model.Book
+import model.{Author, BookToInsert, Title}
 import okhttp3._
 import services.book_finder.OptionPickler._
 import zio._
@@ -40,16 +40,16 @@ object LiveBookFinder {
   case class GoogleBookResult(totalItems: Int, items: Seq[GoogleBookItem])
   object GoogleBookResult {
     implicit val reader: Reader[GoogleBookResult] = macroR
-    def toBook(result: GoogleBookResult): Option[Book] =
+    def toBook(result: GoogleBookResult): Option[BookToInsert] =
       if (result.totalItems == 1)
         for {
           item <- result.items.headOption
           info = item.volumeInfo
           author <- info.authors.headOption
-        } yield Book(
-          1,
-          author,
-          title = info.title,
+        } yield BookToInsert(
+          Author(author),
+          Title(info.title),
+          None,
           thumbnail = Some(info.imageLinks.thumbnail),
           smallThumbnail = Some(info.imageLinks.smallThumbnail)
         )

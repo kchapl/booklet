@@ -1,8 +1,9 @@
 package model
 
 case class BookToInsert(
-    author: String,
-    title: String,
+    author: Author,
+    title: Title,
+    subtitle: Option[Subtitle],
     thumbnail: Option[String],
     smallThumbnail: Option[String]
 )

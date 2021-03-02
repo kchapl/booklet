@@ -1,9 +1,9 @@
 package services.book_finder
 
-import model.Book
+import model.{Author, BookToInsert, Title}
 import zio._
 
 object TestBookFinder {
   val impl: ZLayer[Any, Nothing, BookFinder] =
-    ZLayer.succeed(_ => Task(Some(Book(1, "a4", "t7", Some("i8"), None))))
+    ZLayer.succeed(_ => Task(Some(BookToInsert(Author("a4"), Title("t7"), None, Some("i8"), None))))
 }
