@@ -1,6 +1,6 @@
 package controllers
 
-import model.{Book, Reading}
+import model.{Book, BookToInsert, Reading, ReadingToInsert}
 import play.api.mvc._
 import services.book_finder.{BookFinder, LiveBookFinder}
 import services.database.{Database, LiveDatabase}
@@ -24,7 +24,7 @@ class ReadingController(components: ControllerComponents)
   def createReading(): Action[AnyContent] =
     ZioAction { _ =>
       Database
-        .insertReading("a3", "t3", None, None, LocalDate.now, 3)
+        .insertReading(ReadingToInsert(BookToInsert("a3", "t3", None, None), LocalDate.now, 3))
         .provideCustomLayer(LiveDatabase.impl)
         .fold(
           e => InternalServerError(e.getMessage),

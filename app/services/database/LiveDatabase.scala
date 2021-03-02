@@ -6,7 +6,7 @@ import doobie._
 import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
-import model.{Book, Reading}
+import model.{Book, BookToInsert, Reading, ReadingToInsert}
 import services.database.Database.Service
 import zio.interop.catz._
 import zio.{Task, ULayer, ZLayer}
@@ -62,16 +62,16 @@ object LiveDatabase {
 
       val fetchLastKey: Query0[Long] = sql"SELECT lastval()".query[Long]
 
-      def insertBook(author: String, title: String): Fragment =
+      def insertBook(bookToInsert: BookToInsert): Fragment =
         sql"""INSERT INTO books(author, title)
-             VALUES ($author,$title)"""
+             VALUES (${bookToInsert.author},${bookToInsert.title})"""
 
       def deleteBook(book: Book): Fragment =
         sql"DELETE FROM books WHERE id = ${book.id}"
 
-      def insertReading(bookId: Long, completed: LocalDate, rating: Int): Fragment =
+      def insertReading(bookId: Long, readingToInsert: ReadingToInsert): Fragment =
         sql"""INSERT INTO readings(book_id, completed, rating)
-             VALUES ($bookId, $completed, $rating)"""
+             VALUES ($bookId, ${readingToInsert.completed}, ${readingToInsert.rating})"""
 
       def deleteReading(reading: Reading): Fragment =
         sql"DELETE FROM readings WHERE id = ${reading.id}"
@@ -82,21 +82,14 @@ object LiveDatabase {
       override def fetchAllReadings(): Task[List[Reading]] =
         Queries.fetchAllReadings.to[List].transact(xa)
 
-      def insertBook(author: String, title: String): ConnectionIO[Int] =
-        Queries.insertBook(author, title).update.run
+      def insertBook(bookToInsert: BookToInsert): ConnectionIO[Int] =
+        Queries.insertBook(bookToInsert).update.run
 
-      override def insertReading(
-          author: String,
-          title: String,
-          thumbnail: Option[String],
-          smallThumbnail: Option[String],
-          completed: LocalDate,
-          rating: Int
-      ): Task[Unit] =
+      override def insertReading(readingToInsert: ReadingToInsert): Task[Unit] =
         (for {
-          _      <- insertBook(author, title)
+          _      <- insertBook(readingToInsert.bookToInsert)
           bookId <- Queries.fetchLastKey.unique
-          _      <- Queries.insertReading(bookId, completed, rating).update.run
+          _      <- Queries.insertReading(bookId, readingToInsert).update.run
         } yield ()).transact(xa)
 
       override def deleteReading(reading: Reading): Task[Unit] =
