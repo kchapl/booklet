@@ -36,33 +36,45 @@ object LiveDatabase {
       Put[Date].contramap(date => sql.Date.valueOf(date))
 
     implicit val bookRead: Read[Book] =
-      Read[(String, String)].map { case (author, title) => Book(author, title, None, None) }
+      Read[(Long, String, String)].map { case (id, author, title) =>
+        Book(id, author, title, None, None)
+      }
 
     implicit val readingRead: Read[Reading] =
-      Read[(Book, LocalDate, Int)].map { case (book, completed, rating) =>
-        Reading(book, completed, rating)
+      Read[(Long, Book, LocalDate, Int)].map { case (id, book, completed, rating) =>
+        Reading(id, book, completed, rating)
       }
 
     object Queries {
 
       val fetchAllReadings: Query0[Reading] =
         sql"""SELECT 
-            b.author, 
-            b.title, 
-            r.completed, 
-            r.rating 
-           FROM readings r JOIN books b ON r.book_id = b.id"""
+              r.id,
+              b.id,
+              b.author, 
+              b.title,
+              r.completed, 
+              r.rating 
+              FROM readings r 
+              JOIN books b 
+              ON r.book_id = b.id"""
           .query[Reading]
 
       val fetchLastKey: Query0[Long] = sql"SELECT lastval()".query[Long]
 
-      def insertBook(book: Book): Fragment =
+      def insertBook(author: String, title: String): Fragment =
         sql"""INSERT INTO books(author, title)
-             VALUES (${book.author},${book.title})"""
+             VALUES ($author,$title)"""
 
-      def insertReading(bookId: Long, reading: Reading): Fragment =
+      def deleteBook(book: Book): Fragment =
+        sql"DELETE FROM books WHERE id = ${book.id}"
+
+      def insertReading(bookId: Long, completed: LocalDate, rating: Int): Fragment =
         sql"""INSERT INTO readings(book_id, completed, rating)
-             VALUES ($bookId, ${reading.completed}, ${reading.rating})"""
+             VALUES ($bookId, $completed, $rating)"""
+
+      def deleteReading(reading: Reading): Fragment =
+        sql"DELETE FROM readings WHERE id = ${reading.id}"
     }
 
     ZLayer.succeed(new Service {
@@ -70,13 +82,27 @@ object LiveDatabase {
       override def fetchAllReadings(): Task[List[Reading]] =
         Queries.fetchAllReadings.to[List].transact(xa)
 
-      def insertBook(book: Book): ConnectionIO[Int] = Queries.insertBook(book).update.run
+      def insertBook(author: String, title: String): ConnectionIO[Int] =
+        Queries.insertBook(author, title).update.run
 
-      override def insertReading(reading: Reading): Task[Unit] =
+      override def insertReading(
+          author: String,
+          title: String,
+          thumbnail: Option[String],
+          smallThumbnail: Option[String],
+          completed: LocalDate,
+          rating: Int
+      ): Task[Unit] =
         (for {
-          _      <- insertBook(reading.book)
+          _      <- insertBook(author, title)
           bookId <- Queries.fetchLastKey.unique
-          _      <- Queries.insertReading(bookId, reading).update.run
+          _      <- Queries.insertReading(bookId, completed, rating).update.run
+        } yield ()).transact(xa)
+
+      override def deleteReading(reading: Reading): Task[Unit] =
+        (for {
+          _ <- Queries.deleteReading(reading).update.run
+          _ <- Queries.deleteBook(reading.book).update.run
         } yield ()).transact(xa)
     })
   }

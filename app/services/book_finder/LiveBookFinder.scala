@@ -47,6 +47,7 @@ object LiveBookFinder {
           info = item.volumeInfo
           author <- info.authors.headOption
         } yield Book(
+          1,
           author,
           title = info.title,
           thumbnail = Some(info.imageLinks.thumbnail),

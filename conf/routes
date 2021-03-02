@@ -2,4 +2,5 @@ GET        /              controllers.App.index()
 
 GET        /test          controllers.ReadingController.listReadings()
 GET        /add           controllers.ReadingController.createReading()
+GET        /remove        controllers.ReadingController.deleteReading()
 GET        /lookup        controllers.ReadingController.lookUpBook(isbn)

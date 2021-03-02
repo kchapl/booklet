@@ -23,9 +23,20 @@ class ReadingController(components: ControllerComponents)
 
   def createReading(): Action[AnyContent] =
     ZioAction { _ =>
-      val reading = Reading(Book("a3", "t3", Some("i4"), None), LocalDate.now, 3)
       Database
-        .insertReading(reading)
+        .insertReading("a3", "t3", None, None, LocalDate.now, 3)
+        .provideCustomLayer(LiveDatabase.impl)
+        .fold(
+          e => InternalServerError(e.getMessage),
+          _ => Redirect(routes.ReadingController.listReadings())
+        )
+    }
+
+  def deleteReading(): Action[AnyContent] =
+    ZioAction { _ =>
+      val reading = Reading(1, Book(2, "a3", "t3", Some("i4"), None), LocalDate.now, 3)
+      Database
+        .deleteReading(reading)
         .provideCustomLayer(LiveDatabase.impl)
         .fold(
           e => InternalServerError(e.getMessage),
