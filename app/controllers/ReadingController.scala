@@ -1,9 +1,9 @@
 package controllers
 
-import model.{Author, Book, BookToInsert, Rating, Reading, ReadingToInsert, Title}
+import model._
 import play.api.mvc._
-import services.book_finder.{BookFinder, LiveBookFinder}
-import services.database.{Database, LiveDatabase}
+import services.book_finder.BookFinder
+import services.database.Database
 
 import java.time.LocalDate
 
@@ -14,7 +14,6 @@ class ReadingController(components: ControllerComponents)
     ZioAction { _ =>
       Database
         .fetchAllReadings()
-        .provideCustomLayer(LiveDatabase.impl)
         .fold(
           e => InternalServerError(e.getMessage),
           readings => Ok(views.html.readings(readings))
@@ -31,7 +30,6 @@ class ReadingController(components: ControllerComponents)
             Rating(3)
           )
         )
-        .provideCustomLayer(LiveDatabase.impl)
         .fold(
           e => InternalServerError(e.getMessage),
           _ => Redirect(routes.ReadingController.listReadings())
@@ -48,7 +46,6 @@ class ReadingController(components: ControllerComponents)
       )
       Database
         .deleteReading(reading)
-        .provideCustomLayer(LiveDatabase.impl)
         .fold(
           e => InternalServerError(e.getMessage),
           _ => Redirect(routes.ReadingController.listReadings())
@@ -59,7 +56,6 @@ class ReadingController(components: ControllerComponents)
     ZioAction { _ =>
       BookFinder
         .findByIsbn(isbn)
-        .provideCustomLayer(LiveBookFinder.impl)
         .fold(
           e => InternalServerError(e.getMessage),
           {
