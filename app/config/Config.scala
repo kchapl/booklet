@@ -9,7 +9,8 @@ case class Config(
     dbUser: String,
     dbPass: String,
     bookLookupUrl: String,
-    bookLookupKey: String
+    bookLookupKey: String,
+    signInClientId: String
 )
 
 object Config {
