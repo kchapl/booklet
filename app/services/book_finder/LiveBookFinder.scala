@@ -1,5 +1,6 @@
 package services.book_finder
 
+import config.Config.config
 import model.{Author, BookToInsert, Title}
 import okhttp3._
 import services.book_finder.OptionPickler._
@@ -60,7 +61,7 @@ object LiveBookFinder {
     val client = new OkHttpClient()
     ZLayer.succeed { isbn =>
       val request = new Request.Builder()
-        .url(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
+        .url(s"${config.bookLookupUrl}?key=${config.bookLookupKey}&q=isbn:$isbn")
         .build()
       val response = client.newCall(request).execute()
       val body     = response.body.string

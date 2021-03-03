@@ -7,7 +7,9 @@ case class Config(
     dbDriver: String,
     dbUrl: String,
     dbUser: String,
-    dbPass: String
+    dbPass: String,
+    bookLookupUrl: String,
+    bookLookupKey: String
 )
 
 object Config {
