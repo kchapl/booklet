@@ -4,6 +4,8 @@ import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 
 case class Config(
+    userName: String,
+    password: String,
     dbDriver: String,
     dbUrl: String,
     dbUser: String,

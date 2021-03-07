@@ -44,15 +44,15 @@ class ReadingController(components: ControllerComponents)
           println(locale)
           println(familyName)
           println(givenName)
+          Ok(email)
         } else {
-          System.out.println("Invalid ID token.")
+          InternalServerError("Invalid ID token.")
         }
-        Ok(idTokenString)
       }
     }
 
   def listReadings(): Action[AnyContent] =
-    ZioAction { _ =>
+    ZioAuthorisedAction { _ =>
       Database
         .fetchAllReadings()
         .fold(
