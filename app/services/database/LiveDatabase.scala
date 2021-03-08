@@ -6,7 +6,7 @@ import doobie._
 import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
-import model.{Author, Book, BookToInsert, Rating, Reading, ReadingToInsert, Title}
+import model.{Author, Book, BookToInsert, ISBN, Rating, Reading, ReadingToInsert, Title}
 import services.database.Database.Service
 import zio.interop.catz._
 import zio.{Task, ULayer, ZLayer}
@@ -36,8 +36,8 @@ object LiveDatabase {
       Put[Date].contramap(date => sql.Date.valueOf(date))
 
     implicit val bookRead: Read[Book] =
-      Read[(Long, String, String)].map { case (id, author, title) =>
-        Book(id, Author(author), Title(title), None, None, None)
+      Read[(Long, String, String, String)].map { case (id, isbn, author, title) =>
+        Book(id, ISBN(isbn), Author(author), Title(title), None, None, None)
       }
 
     implicit val readingRead: Read[Reading] =
@@ -51,6 +51,7 @@ object LiveDatabase {
         sql"""SELECT 
               r.id,
               b.id,
+              b.isbn,
               b.author, 
               b.title,
               r.completed, 
@@ -63,8 +64,8 @@ object LiveDatabase {
       val fetchLastKey: Query0[Long] = sql"SELECT lastval()".query[Long]
 
       def insertBook(bookToInsert: BookToInsert): Fragment =
-        sql"""INSERT INTO books(author, title)
-             VALUES (${bookToInsert.author},${bookToInsert.title})"""
+        sql"""INSERT INTO books(isbn,author, title)
+             VALUES (${bookToInsert.isbn},${bookToInsert.author},${bookToInsert.title})"""
 
       def deleteBook(book: Book): Fragment =
         sql"DELETE FROM books WHERE id = ${book.id}"

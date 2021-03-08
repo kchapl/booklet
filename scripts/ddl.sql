@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS books;
 CREATE TABLE books
 (
     id     SERIAL PRIMARY KEY,
+    isbn   TEXT NOT NULL,
     author TEXT NOT NULL,
     title  TEXT NOT NULL
 );

@@ -1,7 +1,7 @@
 package services.book_finder
 
 import config.Config.config
-import model.{Author, BookToInsert, Title}
+import model.{Author, BookToInsert, ISBN, Title}
 import okhttp3._
 import services.book_finder.OptionPickler._
 import zio._
@@ -48,6 +48,12 @@ object LiveBookFinder {
           info = item.volumeInfo
           author <- info.authors.headOption
         } yield BookToInsert(
+          ISBN(
+            info.industryIdentifiers
+              .find(_.`type` == "ISBN_13")
+              .map(_.identifier)
+              .getOrElse("Unknown")
+          ),
           Author(author),
           Title(info.title),
           None,

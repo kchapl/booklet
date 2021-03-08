@@ -66,7 +66,7 @@ class ReadingController(components: ControllerComponents)
       Database
         .insertReading(
           ReadingToInsert(
-            BookToInsert(Author("a3"), Title("t3"), None, None, None),
+            BookToInsert(ISBN("1234"), Author("a3"), Title("t3"), None, None, None),
             LocalDate.now,
             Rating(3)
           )
@@ -81,7 +81,7 @@ class ReadingController(components: ControllerComponents)
     ZioAuthorisedAction { _ =>
       val reading = Reading(
         1,
-        Book(2, Author("a3"), Title("t3"), None, Some("i4"), None),
+        Book(2, ISBN("1234"), Author("a3"), Title("t3"), None, Some("i4"), None),
         LocalDate.now,
         Rating(3)
       )
@@ -98,7 +98,8 @@ class ReadingController(components: ControllerComponents)
       BookFinder
         .findByIsbn(isbn)
         .fold(
-          e => InternalServerError(e.getMessage), {
+          e => InternalServerError(e.getMessage),
+          {
             case Some(book) => Ok(views.html.books(Seq(book)))
             case None       => NotFound
           }

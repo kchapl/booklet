@@ -7,6 +7,7 @@
   <body>
     @for(book <- books) {
       <div>
+        <div>@book.isbn</div>
         <div>@book.title</div>
         <div>@book.author</div>
         <div><img src="@book.smallThumbnail" alt="book image" /></div>
