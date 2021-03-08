@@ -62,7 +62,7 @@ class ReadingController(components: ControllerComponents)
     }
 
   def createReading(): Action[AnyContent] =
-    ZioAction { _ =>
+    ZioAuthorisedAction { _ =>
       Database
         .insertReading(
           ReadingToInsert(
@@ -78,7 +78,7 @@ class ReadingController(components: ControllerComponents)
     }
 
   def deleteReading(): Action[AnyContent] =
-    ZioAction { _ =>
+    ZioAuthorisedAction { _ =>
       val reading = Reading(
         1,
         Book(2, Author("a3"), Title("t3"), None, Some("i4"), None),
@@ -94,12 +94,11 @@ class ReadingController(components: ControllerComponents)
     }
 
   def lookUpBook(isbn: String): Action[AnyContent] =
-    ZioAction { _ =>
+    ZioAuthorisedAction { _ =>
       BookFinder
         .findByIsbn(isbn)
         .fold(
-          e => InternalServerError(e.getMessage),
-          {
+          e => InternalServerError(e.getMessage), {
             case Some(book) => Ok(views.html.books(Seq(book)))
             case None       => NotFound
           }
