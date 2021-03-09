@@ -61,20 +61,40 @@ class ReadingController(components: ControllerComponents)
         )
     }
 
+  def showCreateReadingForm(): Action[AnyContent] =
+    ZioAuthorisedAction(_ => ZIO.succeed(Ok(views.html.bookAdd())))
+
   def createReading(): Action[AnyContent] =
-    ZioAuthorisedAction { _ =>
-      Database
-        .insertReading(
-          ReadingToInsert(
-            BookToInsert(ISBN("1234"), Author("a3"), Title("t3"), None, None, None),
-            LocalDate.now,
-            Rating(3)
+    ZioAuthorisedAction { request =>
+      (for {
+        params <- ZIO
+          .fromOption(request.body.asFormUrlEncoded)
+          .orElseFail(BadRequest("Missing form"))
+        isbn <- ZIO
+          .fromOption(params.get("isbn").flatMap(_.headOption))
+          .orElseFail(BadRequest("Missing ISBN"))
+        author <- ZIO
+          .fromOption(params.get("author").flatMap(_.headOption))
+          .orElseFail(BadRequest("Missing author"))
+        title <- ZIO
+          .fromOption(params.get("title").flatMap(_.headOption))
+          .orElseFail(BadRequest("Missing title"))
+        completed <- ZIO
+          .fromOption(params.get("completed").flatMap(_.headOption.map(y => LocalDate.parse(y))))
+          .orElseFail(BadRequest("Missing completed"))
+        rating <- ZIO
+          .fromOption(params.get("rating").flatMap(_.headOption.map(_.toInt)))
+          .orElseFail(BadRequest("Missing rating"))
+        _ <- Database
+          .insertReading(
+            ReadingToInsert(
+              BookToInsert(ISBN(isbn), Author(author), Title(title), None, None, None),
+              completed,
+              Rating(rating)
+            )
           )
-        )
-        .fold(
-          e => InternalServerError(e.getMessage),
-          _ => Redirect(routes.ReadingController.listReadings())
-        )
+          .mapError(e => InternalServerError(e.getMessage))
+      } yield ()).fold(identity, _ => Redirect(routes.ReadingController.listReadings()))
     }
 
   def deleteReading(): Action[AnyContent] =
