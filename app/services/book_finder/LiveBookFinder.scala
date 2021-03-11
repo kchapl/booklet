@@ -1,7 +1,7 @@
 package services.book_finder
 
 import config.Config.config
-import model.{Author, BookToInsert, ISBN, Title}
+import model.{Author, BookLookupFailure, BookToInsert, ISBN, Title}
 import okhttp3._
 import services.book_finder.OptionPickler._
 import zio._
@@ -63,6 +63,11 @@ object LiveBookFinder {
       else None
   }
 
+  case class EmptyGoogleBookResult(totalItems: Int, kind: String)
+  object EmptyGoogleBookResult {
+    implicit val reader: Reader[EmptyGoogleBookResult] = macroR
+  }
+
   val impl: ZLayer[Any, Nothing, BookFinder] = {
     val client = new OkHttpClient()
     ZLayer.succeed { isbn =>
@@ -73,10 +78,19 @@ object LiveBookFinder {
       val body     = response.body.string
       ZIO
         .effect(read[GoogleBookResult](body))
+        .orElse(ZIO.effect(read[EmptyGoogleBookResult](body)))
         .bimap(
-          e => new RuntimeException(s"Could not parse:\n$body\n$e", e),
-          GoogleBookResult.toBook
+          e => BookLookupFailure(s"Could not parse:\n$body\n$e"),
+          {
+            case result: GoogleBookResult => GoogleBookResult.toBook(result)
+            case _: EmptyGoogleBookResult => None
+          }
         )
     }
   }
 }
+// TODO remove
+// {
+//  "kind": "books#volumes",
+//  "totalItems": 0
+//}

@@ -16,7 +16,7 @@ class BookController(components: ControllerComponents) extends AbstractZioContro
       BookFinder
         .findByIsbn(isbn)
         .fold(
-          e => InternalServerError(e.getMessage),
+          e => InternalServerError(e.reason),
           {
             case Some(book) => Ok(views.html.books(Seq(book)))
             case None       => NotFound
