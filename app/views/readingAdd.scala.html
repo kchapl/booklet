@@ -1,0 +1,35 @@
+<html lang="en">
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <title>Add reading</title>
+    </head>
+    <body>
+      <div class=".container">
+        <form method="post" action="">
+            <div class="mb-3">
+                <label for="isbn" class="form-label">ISBN</label>
+                <input type="text" id="isbn" required class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="author" class="form-label">Author</label>
+                <input type="text" id="author" required class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" id="title" required class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="completed" class="form-label">Completed</label>
+                <input type="text" id="completed" required class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <input id="rating" type="range" class="form-range" min="1" max="5" />
+            </div>
+                <div>
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+      </div>
+    </body>
+</html>

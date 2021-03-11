@@ -1,11 +1,14 @@
-GET         /              controllers.App.index()
+GET         /                      controllers.App.index()
 
-GET         /test          controllers.ReadingController.listReadings()
-GET         /add           controllers.ReadingController.showCreateReadingForm()
-+ nocsrf
-POST        /add           controllers.ReadingController.createReading()
-GET         /remove        controllers.ReadingController.deleteReading()
-GET         /lookup        controllers.ReadingController.lookUpBook(isbn)
+#+ nocsrf
+POST        /login                 controllers.AuthController.logIn()
 
-+ nocsrf
-POST        /login         controllers.ReadingController.logIn()
+GET         /book/add              controllers.BookController.showAddForm()
+POST        /book/add              controllers.BookController.add()
+GET         /book/lookup           controllers.BookController.lookUp(isbn)
+
+GET         /test                  controllers.ReadingController.list()
+
+GET         /reading/add           controllers.ReadingController.showAddForm()
+POST        /reading/add           controllers.ReadingController.add()
+GET         /reading/remove        controllers.ReadingController.remove()
