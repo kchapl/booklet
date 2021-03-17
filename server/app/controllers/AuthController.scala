@@ -1,7 +1,7 @@
 package controllers
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import config.Config.config
 import play.api.mvc._
 import zio.ZIO
@@ -15,7 +15,7 @@ class AuthController(components: ControllerComponents) extends AbstractZioContro
       ZIO.succeed {
         import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
         val transport   = GoogleNetHttpTransport.newTrustedTransport()
-        val jsonFactory = JacksonFactory.getDefaultInstance
+        val jsonFactory = GsonFactory.getDefaultInstance
         val verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
           .setAudience(singletonList(config.signInClientId))
           .build

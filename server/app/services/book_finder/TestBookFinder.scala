@@ -6,6 +6,6 @@ import zio._
 object TestBookFinder {
   val impl: ZLayer[Any, Nothing, BookFinder] =
     ZLayer.succeed(_ =>
-      Task(Some(BookToInsert(ISBN("1234"), Author("a4"), Title("t7"), None, Some("i8"), None)))
+      ZIO.some(BookToInsert(ISBN("1234"), Author("a4"), Title("t7"), None, Some("i8"), None))
     )
 }

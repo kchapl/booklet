@@ -1,0 +1,43 @@
+<html lang="en">
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <title>Add reading</title>
+    </head>
+    <body>
+        <div class=".container">
+            <form method="post" action="">
+                <div class="mb-3">
+                    <label for="isbn" class="form-label">ISBN</label>
+                    <input type="text" id="isbn" name="isbn" required class="form-control" />
+                    <button id="lookup" class="btn btn-primary">Look up</button>
+                </div>
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" id="author" name="author" required class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" id="title" name=""title" required class="form-control" />
+                </div>
+                <div>
+                    <input type="submit" value="Submit" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+        <script>
+            const lookUpButton = document.getElementById('lookup');
+            lookUpButton.onclick = lookUp;
+            function lookUp(event) {
+                var isbn = document.getElementById('isbn').value;
+                const xhr = new XMLHttpRequest();
+                xhr.open('get', 'lookup?isbn=' + isbn);
+                xhr.send();
+                xhr.onload = function() {
+                    console.log(xhr.responseText);
+                };
+            }
+        </script>
+@*      TODO: follow https://www.scala-js.org/doc/project/cross-build.html*@
+        <script type="text/javascript" src="./target/scala-2.13/scala-js-tutorial-fastopt/main.js"></script>
+    </body>
+</html>
