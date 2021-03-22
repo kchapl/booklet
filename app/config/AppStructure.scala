@@ -8,7 +8,8 @@ import router.Routes
 
 class AppStructure(context: Context)
     extends BuiltInComponentsFromContext(context)
-    with HttpFiltersComponents {
+    with HttpFiltersComponents
+    with controllers.AssetsComponents {
 
   lazy val app = new App(controllerComponents)
 
@@ -17,5 +18,5 @@ class AppStructure(context: Context)
   lazy val readingController = new ReadingController(controllerComponents)
 
   lazy val router =
-    new Routes(httpErrorHandler, app, authController, bookController, readingController)
+    new Routes(httpErrorHandler, app, authController, bookController, readingController, assets)
 }

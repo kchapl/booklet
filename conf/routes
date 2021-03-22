@@ -1,0 +1,17 @@
+GET         /                             controllers.App.index()
+
+#+ nocsrf
+POST        /login                        controllers.AuthController.logIn()
+
+GET         /book/add                     controllers.BookController.showAddForm()
+POST        /book/add                     controllers.BookController.add()
+GET         /book/lookup                  controllers.BookController.lookUp(isbn)
+
+GET         /test                         controllers.ReadingController.list()
+
+GET         /reading/add                  controllers.ReadingController.showAddForm()
+POST        /reading/add                  controllers.ReadingController.add()
+GET         /reading/remove               controllers.ReadingController.remove()
+
+GET         /assets/*file                 controllers.Assets.at(file)
+GET         /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)
