@@ -2,7 +2,7 @@ package model
 
 case class Book(
     id: Long,
-    ISBN: ISBN,
+    isbn: Isbn,
     author: Author,
     title: Title,
     subtitle: Option[Subtitle],

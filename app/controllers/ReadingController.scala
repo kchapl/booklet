@@ -47,7 +47,7 @@ class ReadingController(components: ControllerComponents)
         _ <- Database
           .insertReading(
             ReadingToInsert(
-              BookToInsert(ISBN(isbn), Author(author), Title(title), None, None, None),
+              BookToInsert(Isbn(isbn), Author(author), Title(title), None, None, None),
               completed,
               Rating(rating)
             )
@@ -60,7 +60,7 @@ class ReadingController(components: ControllerComponents)
     ZioAuthorisedAction { _ =>
       val reading = Reading(
         1,
-        Book(2, ISBN("1234"), Author("a3"), Title("t3"), None, Some("i4"), None),
+        Book(2, Isbn("1234"), Author("a3"), Title("t3"), None, Some("i4"), None),
         LocalDate.now,
         Rating(3)
       )

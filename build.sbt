@@ -14,7 +14,6 @@ lazy val root = (project in file("."))
       "com.lihaoyi"           %% "upickle"             % "1.3.0",
       "com.github.pureconfig" %% "pureconfig"          % "0.14.1",
       "org.tpolecat"          %% "doobie-core"         % doobieVersion,
-      "org.tpolecat"          %% "doobie-postgres"     % doobieVersion,
       "com.google.api-client"  % "google-api-client"   % "1.31.3",
       "com.vmunier"           %% "scalajs-scripts"     % "1.1.4",
       "org.typelevel"         %% "munit-cats-effect-2" % "0.13.1"      % Test,

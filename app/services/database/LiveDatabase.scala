@@ -6,7 +6,7 @@ import doobie._
 import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
-import model.{Author, Book, BookToInsert, ISBN, Rating, Reading, ReadingToInsert, Title}
+import model.{Author, Book, BookToInsert, Isbn, Rating, Reading, ReadingToInsert, Title}
 import services.database.Database.Service
 import zio.interop.catz._
 import zio.{Task, ULayer, ZLayer}
@@ -37,7 +37,7 @@ object LiveDatabase {
 
     implicit val bookRead: Read[Book] =
       Read[(Long, String, String, String)].map { case (id, isbn, author, title) =>
-        Book(id, ISBN(isbn), Author(author), Title(title), None, None, None)
+        Book(id, Isbn(isbn), Author(author), Title(title), None, None, None)
       }
 
     implicit val readingRead: Read[Reading] =

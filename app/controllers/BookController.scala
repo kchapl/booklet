@@ -3,6 +3,7 @@ package controllers
 import play.api.mvc._
 import services.book_finder.BookFinder
 import zio.ZIO
+import upickle.default._
 
 class BookController(components: ControllerComponents) extends AbstractZioController(components) {
 
@@ -18,7 +19,7 @@ class BookController(components: ControllerComponents) extends AbstractZioContro
         .fold(
           e => InternalServerError(e.reason),
           {
-            case Some(book) => Ok(views.html.books(Seq(book)))
+            case Some(book) => Ok(write(book))
             case None       => NotFound
           }
         )
