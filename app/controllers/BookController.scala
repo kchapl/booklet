@@ -19,7 +19,7 @@ class BookController(components: ControllerComponents) extends AbstractZioContro
         .fold(
           e => InternalServerError(e.reason),
           {
-            case Some(book) => Ok(write(book))
+            case Some(book) => Ok(write(book)).as("application/json")
             case None       => NotFound
           }
         )

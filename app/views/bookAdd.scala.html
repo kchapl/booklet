@@ -29,7 +29,9 @@
                 xhr.open('get', 'lookup?isbn=' + isbn);
                 xhr.send();
                 xhr.onload = function() {
-                    console.log(xhr.responseText);
+                    let data = JSON.parse(xhr.responseText);
+                    document.getElementById('author').value = data.author.value;
+                    document.getElementById('title').value = data.title.value;
                 };
             }
         </script>
