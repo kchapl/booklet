@@ -2,13 +2,13 @@ package controllers
 
 import play.api.mvc._
 import services.book_finder.BookFinder
-import zio.ZIO
 import upickle.default._
+import zio.ZIO
 
 class BookController(components: ControllerComponents) extends AbstractZioController(components) {
 
   def showAddForm(): Action[AnyContent] =
-    ZioAuthorisedAction(_ => ZIO.succeed(Ok(views.html.bookAdd())))
+    ZioAuthorisedAction(implicit request => ZIO.succeed(Ok(views.html.bookAdd(request))))
 
   def add(): Action[AnyContent] = TODO
 

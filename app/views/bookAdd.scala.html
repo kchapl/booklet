@@ -1,7 +1,10 @@
+@(implicit request: RequestHeader)
+
 @main("Add reading") {
     <body>
         <div class=".container">
             <form method="post" action="">
+                @helper.CSRF.formField
                 <div class="mb-3">
                     <label for="isbn" class="form-label">ISBN</label>
                     <input type="text" id="isbn" name="isbn" required class="form-control" />
