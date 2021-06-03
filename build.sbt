@@ -17,3 +17,5 @@ libraryDependencies ++= Seq(
   "org.typelevel"         %% "munit-cats-effect-2" % "1.0.3"       % Test,
   "org.tpolecat"          %% "doobie-scalatest"    % doobieVersion % Test
 )
+
+enablePlugins(JavaAppPackaging)
