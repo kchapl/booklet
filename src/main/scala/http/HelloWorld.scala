@@ -14,7 +14,7 @@ object HelloWorld extends zio.App {
     for {
       optPortStr <- system.env("PORT").mapError(e => Failure(e.getMessage))
       portStr    <- ZIO.fromOption(optPortStr).orElseFail(Failure("Missing port"))
-      port       <- ZIO.effect(portStr.toInt).orElseFail(Failure("Non-int port"))
+      port       <- ZIO.effect(portStr.toInt).mapError(e => Failure(s"Non-int port: ${e.getMessage}"))
     } yield port
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =
