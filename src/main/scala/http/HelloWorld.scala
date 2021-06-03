@@ -5,10 +5,21 @@ import zhttp.service.Server
 import zio._
 
 object HelloWorld extends zio.App {
-  val app = Http.collect[Request] { case Method.GET -> Root / "text" =>
-    Response.text("Hello World!")
+  val app: Http[Any, Nothing, Request, UResponse] = Http.collect[Request] {
+    case Method.GET -> Root / "text" =>
+      Response.text("Hello World!")
   }
 
+  val port: ZIO[system.System, Failure, Int] =
+    for {
+      optPortStr <- system.env("PORT").mapError(e => Failure(e.getMessage))
+      portStr    <- ZIO.fromOption(optPortStr).orElseFail(Failure("Missing port"))
+      port       <- ZIO.effect(portStr.toInt).orElseFail(Failure("Non-int port"))
+    } yield port
+
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =
-    Server.start(port = 8090, app).exitCode
+    (for {
+      p <- port
+      _ <- Server.start(port = p, app)
+    } yield ()).exitCode
 }

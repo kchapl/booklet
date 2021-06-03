@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/booklet
+web: target/universal/stage/bin/booklet -p $PORT
