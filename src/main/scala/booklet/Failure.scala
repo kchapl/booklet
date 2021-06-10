@@ -1,3 +1,3 @@
-package http
+package booklet
 
 case class Failure(message: String)
