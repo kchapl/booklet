@@ -2,7 +2,7 @@ package booklet.model
 
 import upickle.default._
 
-case class BookToInsert(
+case class BookData(
     isbn: Isbn,
     author: Author,
     title: Title,
@@ -11,6 +11,6 @@ case class BookToInsert(
     smallThumbnail: Option[String]
 )
 
-object BookToInsert {
-  implicit val writer: Writer[BookToInsert] = macroW
+object BookData {
+  implicit val writer: Writer[BookData] = macroW
 }

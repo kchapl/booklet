@@ -11,9 +11,9 @@ import zio._
 
 object Router extends zio.App {
 
-//  private val app = Http.collect[Request] { case Method.GET -> Root / "text" =>
-//    Response.text("Hello World!")
-//  }
+  private val app = Http.collect[Request] { case Method.GET -> Root / "text" =>
+    Response.text("Hello World!")
+  }
 
   private val app2 = Http.collectM[Request] { case Method.GET -> Root / "books" =>
     Database.fetchAllBooks().map { books =>
@@ -23,8 +23,7 @@ object Router extends zio.App {
 
   private def server(port: Int) =
     Server.port(port) ++
-//      Server.app(app +++ app2)
-      Server.app(app2)
+      Server.app(app +++ app2)
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     server(config.port).make

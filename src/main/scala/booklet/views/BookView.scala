@@ -1,21 +1,18 @@
 package booklet.views
 
 import booklet.model.Book
-import scalatags.Text.TypedTag
-import scalatags.Text.short._
-import scalatags.Text.tags2._
+import scalatags.Text.all._
 
 object BookView {
 
-  def list(books: Seq[Book]): TypedTag[String] = html(
-    head(
-      title("page title")
-    ),
+  def list(books: Seq[Book]) = html(
+    head(),
     body(
-      div(
-        h1("This is a title"),
-        p("This is a big paragraph of text")
-      )
+      for (book <- books)
+        yield div(
+          p(book.title.value),
+          p(book.author.value)
+        )
     )
   )
 }

@@ -20,10 +20,15 @@ object Database {
 
   trait Service {
     def fetchAllBooks(): ZIO[Any, Throwable, List[Book]]
+
+    def createBook(data: BookData): ZIO[Any, Throwable, Book]
   }
 
   def fetchAllBooks(): ZIO[Database, Throwable, List[Book]] =
     ZIO.accessM(_.get.fetchAllBooks())
+
+  def createBook(data: BookData): ZIO[Database, Throwable, Book] =
+    ZIO.accessM(_.get.createBook(data))
 
   val live: ZLayer[Any, Nothing, Database] = {
 
@@ -63,6 +68,11 @@ object Database {
           .query[Book]
     }
 
-    ZLayer.succeed(() => Queries.fetchAllBooks.to[List].transact(xa))
+    ZLayer.succeed(new Service {
+      def fetchAllBooks(): ZIO[Any, Throwable, List[Book]] =
+        Queries.fetchAllBooks.to[List].transact(xa)
+
+      def createBook(data: BookData): ZIO[Any, Throwable, Book] = ???
+    })
   }
 }
