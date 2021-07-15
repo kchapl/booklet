@@ -6,9 +6,7 @@ import pureconfig.generic.auto._
 case class Config(
     port: Int,
     dbDriver: String,
-    dbUrl: String,
-    dbUser: String,
-    dbPass: String
+    dbUrl: String
 )
 
 object Config {
