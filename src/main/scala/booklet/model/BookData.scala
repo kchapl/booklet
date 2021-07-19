@@ -13,4 +13,17 @@ case class BookData(
 
 object BookData {
   implicit val writer: Writer[BookData] = macroW
+
+  def fromHttpQuery(qry: Map[String, String]): Option[BookData] = for {
+    isbn <- qry.get("isbn")
+    author <- qry.get("author")
+    title <- qry.get("title")
+  } yield BookData(
+    Isbn(isbn),
+    Author(author),
+    Title(title),
+    None,
+    None,
+    None
+  )
 }
