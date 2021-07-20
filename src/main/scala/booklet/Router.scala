@@ -3,7 +3,7 @@ package booklet
 import booklet.Config.config
 import booklet.http.CustomResponse.toContent
 import booklet.http.{CustomResponse, Query}
-import booklet.model.BookData
+import booklet.model.{BookData, Id}
 import booklet.services.database.Database
 import booklet.services.database.Database.Database
 import booklet.views.BookView
@@ -35,7 +35,7 @@ object Router extends zio.App {
           books => CustomResponse.htmlString(BookView.list(books).toString)
         )
 
-    case req @ Method.POST -> Root / "books" / "add" =>
+    case req @ Method.POST -> Root / "books" =>
       val requestQry = req.content match {
         case CompleteData(data) => Query.fromQueryString(new String(data.toArray, HTTP_CHARSET))
         case _                  => Map.empty[String, String]
@@ -45,11 +45,43 @@ object Router extends zio.App {
         .foldM(
           _ =>
             ZIO.succeed(
-              Response.http(status = BAD_REQUEST, content = toContent(requestQry.toString))
+              Response.http(
+                status = BAD_REQUEST,
+                content = toContent(requestQry.toString)
+              )
             ),
           bookData =>
             Database
               .insertBook(bookData)
+              .fold(
+                failure =>
+                  Response.http(
+                    status = INTERNAL_SERVER_ERROR,
+                    content = toContent(failure.message)
+                  ),
+                _ =>
+                  Response.http(
+                    status = SEE_OTHER,
+                    headers = List(Header(LOCATION, "/books"))
+                  )
+              )
+        )
+
+    case Method.DELETE -> Root / "books" / bookId =>
+      ZIO
+        .fromOption(bookId.toLongOption)
+        .map(Id)
+        .foldM(
+          _ =>
+            ZIO.succeed(
+              Response.http(
+                status = BAD_REQUEST,
+                content = toContent(bookId)
+              )
+            ),
+          id =>
+            Database
+              .deleteBook(id)
               .fold(
                 failure =>
                   Response.http(

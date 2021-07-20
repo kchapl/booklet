@@ -31,6 +31,9 @@ object Database {
   def insertBook(data: BookData): ZIO[Database, Failure, Unit] =
     ZIO.serviceWith(_.insertBook(data))
 
+  def deleteBook(id: Id): ZIO[Database, Failure, Unit] =
+    ZIO.serviceWith(_.deleteBook(id))
+
   val live: ZLayer[Any, Nothing, Database] = {
 
     implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
