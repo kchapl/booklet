@@ -21,14 +21,14 @@ object Database {
 
   trait Service {
     def fetchAllBooks(): ZIO[Any, Failure, List[Book]]
-
-    def insertBook(data: BookData): ZIO[Any, Failure, Book]
+    def insertBook(data: BookData): ZIO[Any, Failure, Unit]
+    def deleteBook(id: Id): ZIO[Any, Failure, Unit]
   }
 
   def fetchAllBooks(): ZIO[Database, Failure, List[Book]] =
     ZIO.serviceWith(_.fetchAllBooks())
 
-  def insertBook(data: BookData): ZIO[Database, Failure, Book] =
+  def insertBook(data: BookData): ZIO[Database, Failure, Unit] =
     ZIO.serviceWith(_.insertBook(data))
 
   val live: ZLayer[Any, Nothing, Database] = {
@@ -69,13 +69,21 @@ object Database {
           .transact(xa)
           .mapError(Failure(_))
 
-      def insertBook(data: BookData): ZIO[Any, Failure, Book] =
+      def insertBook(data: BookData): ZIO[Any, Failure, Unit] =
         sql"INSERT INTO books(isbn, author, title) VALUES (${data.isbn}, ${data.author}, ${data.title})".update
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)
           .bimap(
             Failure(_),
-            id => Book(id, data.isbn, data.author, data.title, None, None, None)
+            _ => ()
+          )
+
+      def deleteBook(id: Id): ZIO[Any, Failure, Unit] =
+        sql"DELETE FROM books WHERE id = ${id.value}".update.run
+          .transact(xa)
+          .bimap(
+            Failure(_),
+            _ => ()
           )
     })
   }
