@@ -22,6 +22,7 @@ object Database {
   trait Service {
     def fetchAllBooks(): ZIO[Any, Failure, List[Book]]
     def insertBook(data: BookData): ZIO[Any, Failure, Unit]
+    def updateBook(id: Id, data: BookData): ZIO[Any, Failure, Unit]
     def deleteBook(id: Id): ZIO[Any, Failure, Unit]
   }
 
@@ -30,6 +31,9 @@ object Database {
 
   def insertBook(data: BookData): ZIO[Database, Failure, Unit] =
     ZIO.serviceWith(_.insertBook(data))
+
+  def updateBook(id: Id, data: BookData): ZIO[Database, Failure, Unit] =
+    ZIO.serviceWith(_.updateBook(id, data))
 
   def deleteBook(id: Id): ZIO[Database, Failure, Unit] =
     ZIO.serviceWith(_.deleteBook(id))
@@ -66,14 +70,20 @@ object Database {
 
     ZLayer.succeed(new Service {
       def fetchAllBooks(): ZIO[Any, Failure, List[Book]] =
-        sql"""SELECT id, isbn, author, title FROM books"""
+        sql"""
+            SELECT id, isbn, author, title 
+            FROM books
+           """
           .query[Book]
           .to[List]
           .transact(xa)
           .mapError(Failure(_))
 
       def insertBook(data: BookData): ZIO[Any, Failure, Unit] =
-        sql"INSERT INTO books(isbn, author, title) VALUES (${data.isbn}, ${data.author}, ${data.title})".update
+        sql"""
+            INSERT INTO books(isbn, author, title) 
+            VALUES (${data.isbn}, ${data.author}, ${data.title})
+           """.update
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)
           .bimap(
@@ -81,8 +91,23 @@ object Database {
             _ => ()
           )
 
+      def updateBook(id: Id, data: BookData): ZIO[Any, Failure, Unit] =
+        sql"""
+            UPDATE books 
+            SET isbn=${data.isbn}, author=${data.author}, title=${data.title} 
+            WHERE id=$id
+           """.update.run
+          .transact(xa)
+          .bimap(
+            Failure(_),
+            _ => ()
+          )
+
       def deleteBook(id: Id): ZIO[Any, Failure, Unit] =
-        sql"DELETE FROM books WHERE id = ${id.value}".update.run
+        sql"""
+            DELETE FROM books 
+            WHERE id = $id
+           """.update.run
           .transact(xa)
           .bimap(
             Failure(_),

@@ -8,7 +8,6 @@ import booklet.services.database.Database
 import booklet.services.database.Database.Database
 import booklet.views.BookView
 import io.netty.handler.codec.http.HttpHeaderNames.LOCATION
-import zhttp.http.HttpData.CompleteData
 import zhttp.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, SEE_OTHER}
 import zhttp.http._
 import zhttp.service.server.ServerChannelFactory
@@ -36,12 +35,9 @@ object Router extends zio.App {
         )
 
     case req @ Method.POST -> Root / "books" =>
-      val requestQry = req.content match {
-        case CompleteData(data) => Query.fromQueryString(new String(data.toArray, HTTP_CHARSET))
-        case _                  => Map.empty[String, String]
-      }
+      val requestQry = Query.fromRequest(req)
       ZIO
-        .fromOption(BookData.fromHttpQuery(requestQry))
+        .fromOption(BookData.completeFromHttpQuery(requestQry))
         .foldM(
           _ =>
             ZIO.succeed(
@@ -53,6 +49,36 @@ object Router extends zio.App {
           bookData =>
             Database
               .insertBook(bookData)
+              .fold(
+                failure =>
+                  Response.http(
+                    status = INTERNAL_SERVER_ERROR,
+                    content = toContent(failure.message)
+                  ),
+                _ =>
+                  Response.http(
+                    status = SEE_OTHER,
+                    headers = List(Header(LOCATION, "/books"))
+                  )
+              )
+        )
+
+    case req @ Method.PATCH -> Root / "books" / bookId =>
+      val requestQry = Query.fromRequest(req)
+      ZIO
+        .fromOption(bookId.toLongOption)
+        .map(Id)
+        .foldM(
+          _ =>
+            ZIO.succeed(
+              Response.http(
+                status = BAD_REQUEST,
+                content = toContent(requestQry.toString)
+              )
+            ),
+          id =>
+            Database
+              .updateBook(id, BookData.partialFromHttpQuery(requestQry))
               .fold(
                 failure =>
                   Response.http(
