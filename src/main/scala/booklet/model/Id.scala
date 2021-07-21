@@ -1,3 +1,3 @@
 package booklet.model
 
-case class Id(value: Long)
+case class Id(value: Long) extends AnyVal
