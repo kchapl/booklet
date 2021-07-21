@@ -56,7 +56,7 @@ object Database {
 
     implicit val bookRead: Read[Book] =
       Read[(Long, String, String, String)].map { case (id, isbn, author, title) =>
-        Book(id, Isbn(isbn), Author(author), Title(title), None, None, None)
+        Book(Id(id), Isbn(isbn), Author(author), Title(title), None, None, None)
       }
 
     implicit val readingRead: Read[Reading] =
