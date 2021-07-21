@@ -11,6 +11,7 @@ object BookView {
       for (book <- books)
         yield div(
           p(book.id.value),
+          p(book.isbn.value),
           p(book.title.value),
           p(book.author.value)
         )
