@@ -1,15 +1,11 @@
 package booklet.http
 
-import zhttp.http.HttpData.CompleteData
-import zhttp.http.{HTTP_CHARSET, Request}
+import zhttp.http.Request
 
 object Query {
 
   def fromRequest(request: Request): Map[String, String] =
-    request.content match {
-      case CompleteData(data) => Query.fromQueryString(new String(data.toArray, HTTP_CHARSET))
-      case _                  => Map.empty[String, String]
-    }
+    request.getBodyAsString.map(fromQueryString).getOrElse(Map.empty[String, String])
 
   def fromQueryString(s: String): Map[String, String] = {
     def splitParam(param: String): Option[(String, String)] = {
