@@ -16,11 +16,14 @@ import zio._
 
 object Router extends zio.App {
 
-  private val app = Http.collect[Request] { case Method.GET -> Root / "text" =>
-    Response.text("Hello World!")
+  private val rootApp = Http.collect[Request] { case Method.GET -> Root =>
+    Response.http(
+      status = SEE_OTHER,
+      headers = List(Header(LOCATION, "/books"))
+    )
   }
 
-  private val app2: Http[Database, Throwable, Request, UResponse] = Http.collectM[Request] {
+  private val bookApp: Http[Database, Throwable, Request, UResponse] = Http.collectM[Request] {
 
     case Method.GET -> Root / "books" =>
       Database
@@ -125,7 +128,7 @@ object Router extends zio.App {
 
   val program =
     (Server.port(config.port) ++
-      Server.app(app +++ app2)).make
+      Server.app(rootApp +++ bookApp)).make
       .mapError(Failure(_))
       .use(_ =>
         console.putStrLn(s"Server started on port ${config.port}").mapError(Failure(_)) *> ZIO.never
