@@ -1,7 +1,7 @@
 package booklet.model
 
 case class Book(
-    id: Id,
+    id: BookId,
     isbn: Isbn,
     author: Author,
     title: Title,

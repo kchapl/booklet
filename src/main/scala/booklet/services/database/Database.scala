@@ -4,7 +4,9 @@ import booklet.Config.config
 import booklet.Failure
 import booklet.model._
 import cats.effect.{ContextShift, IO}
+import cats.implicits._
 import doobie.implicits._
+import doobie.util.fragment.Fragment
 import doobie.util.Get
 import doobie.{Put, Read, Transactor}
 import zio.interop.catz._
@@ -22,8 +24,8 @@ object Database {
   trait Service {
     def fetchAllBooks(): ZIO[Any, Failure, List[Book]]
     def insertBook(data: BookData): ZIO[Any, Failure, Unit]
-    def updateBook(id: Id, data: BookData): ZIO[Any, Failure, Unit]
-    def deleteBook(id: Id): ZIO[Any, Failure, Unit]
+    def updateBook(id: BookId, data: BookData): ZIO[Any, Failure, Unit]
+    def deleteBook(id: BookId): ZIO[Any, Failure, Unit]
   }
 
   def fetchAllBooks(): ZIO[Database, Failure, List[Book]] =
@@ -32,10 +34,10 @@ object Database {
   def insertBook(data: BookData): ZIO[Database, Failure, Unit] =
     ZIO.serviceWith(_.insertBook(data))
 
-  def updateBook(id: Id, data: BookData): ZIO[Database, Failure, Unit] =
+  def updateBook(id: BookId, data: BookData): ZIO[Database, Failure, Unit] =
     ZIO.serviceWith(_.updateBook(id, data))
 
-  def deleteBook(id: Id): ZIO[Database, Failure, Unit] =
+  def deleteBook(id: BookId): ZIO[Database, Failure, Unit] =
     ZIO.serviceWith(_.deleteBook(id))
 
   val live: ZLayer[Any, Nothing, Database] = {
@@ -60,7 +62,7 @@ object Database {
 
     implicit val bookRead: Read[Book] =
       Read[(Long, String, String, String)].map { case (id, isbn, author, title) =>
-        Book(Id(id), Isbn(isbn), Author(author), Title(title), None, None, None)
+        Book(BookId(id), Isbn(isbn), Author(author), Title(title), None, None, None)
       }
 
     implicit val readingRead: Read[Reading] =
@@ -71,9 +73,9 @@ object Database {
     ZLayer.succeed(new Service {
       def fetchAllBooks(): ZIO[Any, Failure, List[Book]] =
         sql"""
-            SELECT id, isbn, author, title 
-            FROM books
-           """
+          |SELECT id, isbn, author, title
+          |FROM books
+          |""".stripMargin
           .query[Book]
           .to[List]
           .transact(xa)
@@ -81,9 +83,9 @@ object Database {
 
       def insertBook(data: BookData): ZIO[Any, Failure, Unit] =
         sql"""
-            INSERT INTO books(isbn, author, title) 
-            VALUES (${data.isbn}, ${data.author}, ${data.title})
-           """.update
+          |INSERT INTO books(isbn, author, title)
+          |VALUES (${data.isbn}, ${data.author}, ${data.title})
+          |""".stripMargin.update
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)
           .bimap(
@@ -91,23 +93,32 @@ object Database {
             _ => ()
           )
 
-      def updateBook(id: Id, data: BookData): ZIO[Any, Failure, Unit] =
-        sql"""
-            UPDATE books 
-            SET isbn=${data.isbn}, author=${data.author}, title=${data.title} 
-            WHERE id=$id
-           """.update.run
+      def updateBook(id: BookId, data: BookData): ZIO[Any, Failure, Unit] = {
+
+        def fieldToUpdate(name: String, value: Option[String]): Option[Fragment] =
+          value.map { v =>
+            Fragment.const(name) ++ fr"=$v"
+          }
+
+        val updateClause = Seq(
+          fieldToUpdate("isbn", data.isbn.map(_.value)),
+          fieldToUpdate("author", data.author.map(_.value)),
+          fieldToUpdate("title", data.title.map(_.value))
+        ).flatten.intercalate(fr",")
+
+        fr"UPDATE books SET $updateClause WHERE id=$id".update.run
           .transact(xa)
           .bimap(
             Failure(_),
             _ => ()
           )
+      }
 
-      def deleteBook(id: Id): ZIO[Any, Failure, Unit] =
+      def deleteBook(id: BookId): ZIO[Any, Failure, Unit] =
         sql"""
-            DELETE FROM books 
-            WHERE id = $id
-           """.update.run
+          |DELETE FROM books
+          |WHERE id = $id
+          |""".stripMargin.update.run
           .transact(xa)
           .bimap(
             Failure(_),

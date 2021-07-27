@@ -3,7 +3,7 @@ package booklet
 import booklet.Config.config
 import booklet.http.CustomResponse.toContent
 import booklet.http.{CustomResponse, Query}
-import booklet.model.{BookData, Id}
+import booklet.model.{BookData, BookId}
 import booklet.services.database.Database
 import booklet.services.database.Database.Database
 import booklet.views.BookView
@@ -70,7 +70,7 @@ object Router extends zio.App {
       val requestQry = Query.fromRequest(req)
       ZIO
         .fromOption(bookId.toLongOption)
-        .map(Id)
+        .map(BookId)
         .foldM(
           _ =>
             ZIO.succeed(
@@ -99,7 +99,7 @@ object Router extends zio.App {
     case Method.DELETE -> Root / "books" / bookId =>
       ZIO
         .fromOption(bookId.toLongOption)
-        .map(Id)
+        .map(BookId)
         .foldM(
           _ =>
             ZIO.succeed(
