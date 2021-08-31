@@ -1,6 +1,16 @@
+import sbt.Keys.semanticdbEnabled
+
 name := "booklet"
 
+scalacOptions ++= Seq("-deprecation", "-Wunused", "-Xlint:adapted-args")
 scalaVersion := "2.13.6"
+
+// required by Scalafix
+semanticdbEnabled := true
+semanticdbVersion := scalafixSemanticdb.revision
+
+// required by sbt-native-packager plugin
+enablePlugins(JavaAppPackaging)
 
 val doobieVersion = "0.13.4"
 
