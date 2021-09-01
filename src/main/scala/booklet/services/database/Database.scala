@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.util.Date
 import scala.concurrent.ExecutionContext
 
-trait Database3 {
+trait Database {
   val fetchAllBooks: ZIO[Any, Failure, List[Book]]
 
   def fetchBook(id: BookId): ZIO[Any, Failure, Option[Book]]
@@ -29,21 +29,21 @@ trait Database3 {
   def deleteBook(id: BookId): ZIO[Any, Failure, Unit]
 }
 
-object Database3 {
+object Database {
 
-  val fetchAllBooks: ZIO[Has[Database3], Failure, List[Book]] =
+  val fetchAllBooks: ZIO[Has[Database], Failure, List[Book]] =
     ZIO.serviceWith(_.fetchAllBooks)
 
-  def fetchBook(id: BookId): ZIO[Has[Database3], Failure, Option[Book]] =
+  def fetchBook(id: BookId): ZIO[Has[Database], Failure, Option[Book]] =
     ZIO.serviceWith(_.fetchBook(id))
 
-  def insertBook(data: BookData): ZIO[Has[Database3], Failure, Unit] =
+  def insertBook(data: BookData): ZIO[Has[Database], Failure, Unit] =
     ZIO.serviceWith(_.insertBook(data))
 
-  def updateBook(id: BookId, data: BookData): ZIO[Has[Database3], Failure, Unit] =
+  def updateBook(id: BookId, data: BookData): ZIO[Has[Database], Failure, Unit] =
     ZIO.serviceWith(_.updateBook(id, data))
 
-  def deleteBook(id: BookId): ZIO[Has[Database3], Failure, Unit] =
+  def deleteBook(id: BookId): ZIO[Has[Database], Failure, Unit] =
     ZIO.serviceWith(_.deleteBook(id))
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
@@ -64,12 +64,12 @@ object Database3 {
       Reading(id, book, completed, Rating(rating))
     }
 
-  val f: ZManaged[Has[Configuration], Failure, Database3] =
+  val f: ZManaged[Has[Configuration], Failure, Database] =
     for {
-      config <- Configuration.load.toManaged_
+      config <- Configuration.load.toManaged
       jdbc = JdbcConfig.fromDbUrl(config.db.url)
       xa <- ZManaged
-        .effect(
+        .attempt(
           Transactor.fromDriverManager[Task](
             driver = config.db.driver,
             url = jdbc.url,
@@ -78,7 +78,7 @@ object Database3 {
           )
         )
         .mapError(Failure(_))
-    } yield new Database3 {
+    } yield new Database {
       val fetchAllBooks: ZIO[Any, Failure, List[Book]] =
         sql"""
                |SELECT id, isbn, author, title
@@ -144,5 +144,5 @@ object Database3 {
           )
     }
 
-  val live: ZLayer[Has[Configuration], Failure, Has[Database3]] = ZLayer.fromManaged(f)
+  val live: ZLayer[Has[Configuration], Failure, Has[Database]] = ZLayer.fromManaged(f)
 }

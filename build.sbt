@@ -14,7 +14,7 @@ enablePlugins(JavaAppPackaging)
 
 val doobieVersion = "0.13.4"
 
-val zioVersion = "1.0.10"
+val zioVersion = "2.0.0-M2"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,

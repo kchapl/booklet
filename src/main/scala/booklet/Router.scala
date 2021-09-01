@@ -4,7 +4,7 @@ import booklet.http.CustomResponse.toContent
 import booklet.http.{CustomResponse, Query}
 import booklet.model.{BookData, BookId}
 import booklet.services.configuration.Configuration
-import booklet.services.database.Database3
+import booklet.services.database.Database
 import booklet.views.BookView
 import io.netty.handler.codec.http.HttpHeaderNames.LOCATION
 import zhttp.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, SEE_OTHER}
@@ -22,11 +22,11 @@ object Router extends zio.App {
     )
   }
 
-  private val bookApp: Http[Has[Database3], Throwable, Request, UResponse] =
+  private val bookApp: Http[Has[Database], Throwable, Request, UResponse] =
     Http.collectM[Request] {
 
       case Method.GET -> Root / "books" =>
-        Database3.fetchAllBooks
+        Database.fetchAllBooks
           .fold(
             failure =>
               Response.http(
@@ -40,7 +40,7 @@ object Router extends zio.App {
         ZIO
           .fromOption(bookId.toLongOption)
           .map(BookId)
-          .foldM(
+          .foldZIO(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -49,7 +49,7 @@ object Router extends zio.App {
                 )
               ),
             id =>
-              Database3
+              Database
                 .fetchBook(id)
                 .fold(
                   failure =>
@@ -72,7 +72,7 @@ object Router extends zio.App {
         val requestQry = Query.fromRequest(req)
         ZIO
           .fromOption(BookData.completeFromHttpQuery(requestQry))
-          .foldM(
+          .foldZIO(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -81,7 +81,7 @@ object Router extends zio.App {
                 )
               ),
             bookData =>
-              Database3
+              Database
                 .insertBook(bookData)
                 .fold(
                   failure =>
@@ -102,7 +102,7 @@ object Router extends zio.App {
         ZIO
           .fromOption(bookId.toLongOption)
           .map(BookId)
-          .foldM(
+          .foldZIO(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -111,7 +111,7 @@ object Router extends zio.App {
                 )
               ),
             id =>
-              Database3
+              Database
                 .updateBook(id, BookData.partialFromHttpQuery(requestQry))
                 .fold(
                   failure =>
@@ -131,7 +131,7 @@ object Router extends zio.App {
         ZIO
           .fromOption(bookId.toLongOption)
           .map(BookId)
-          .foldM(
+          .foldZIO(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -140,7 +140,7 @@ object Router extends zio.App {
                 )
               ),
             id =>
-              Database3
+              Database
                 .deleteBook(id)
                 .fold(
                   failure =>
@@ -159,21 +159,21 @@ object Router extends zio.App {
 
   val program = {
     for {
-      config <- Configuration.load.toManaged_
+      config <- Configuration.load.toManaged
       server <- (Server.port(config.app.port) ++
         Server.app(rootApp +++ bookApp)).make
         .mapError(Failure(_))
         .use(_ =>
-          console
-            .putStrLn(s"Server started on port ${config.app.port}")
+          Console
+            .printLine(s"Server started on port ${config.app.port}")
             .mapError(Failure(_)) *> ZIO.never
         )
-        .toManaged_
+        .toManaged
     } yield server
   }
 
   val layer = Configuration.live >+>
-    (ServerChannelFactory.auto ++ EventLoopGroup.auto(nThreads = 1) ++ Database3.live)
+    (ServerChannelFactory.auto ++ EventLoopGroup.auto(nThreads = 1) ++ Database.live)
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     program
