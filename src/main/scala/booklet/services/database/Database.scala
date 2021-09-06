@@ -64,7 +64,7 @@ object Database {
       Reading(id, book, completed, Rating(rating))
     }
 
-  val f: ZManaged[Has[Configuration], Failure, Database] =
+  val live: ZLayer[Has[Configuration], Failure, Has[Database]] = ZLayer.fromManaged {
     for {
       config <- Configuration.load.toManaged
       jdbc = JdbcConfig.fromDbUrl(config.db.url)
@@ -81,9 +81,9 @@ object Database {
     } yield new Database {
       val fetchAllBooks: ZIO[Any, Failure, List[Book]] =
         sql"""
-               |SELECT id, isbn, author, title
-               |FROM books
-               |""".stripMargin
+             |SELECT id, isbn, author, title
+             |FROM books
+             |""".stripMargin
           .query[Book]
           .to[List]
           .transact(xa)
@@ -91,10 +91,11 @@ object Database {
 
       def fetchBook(id: BookId): ZIO[Any, Failure, Option[Book]] =
         sql"""
-               |SELECT id, isbn, author, title
-               |FROM books
-               |WHERE id = $id
-               |""".stripMargin
+             |SELECT id, isbn, author, title
+             |FROM books
+             |WHERE id = $id
+
+             |""".stripMargin
           .query[Book]
           .option
           .transact(xa)
@@ -143,6 +144,5 @@ object Database {
             _ => ()
           )
     }
-
-  val live: ZLayer[Has[Configuration], Failure, Has[Database]] = ZLayer.fromManaged(f)
+  }
 }
