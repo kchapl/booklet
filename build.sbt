@@ -15,7 +15,7 @@ enablePlugins(JavaAppPackaging)
 val doobieVersion = "0.13.4"
 val zioVersion = "2.0.0-M2"
 val pureConfigVersion = "0.16.0"
-val upickleVersion = "1.4.0"
+val upickleVersion = "1.4.1"
 val catsVersion = "2.6.1"
 
 libraryDependencies ++= Seq(
