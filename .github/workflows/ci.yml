@@ -16,4 +16,8 @@ jobs:
         with:
           java-version: adopt@1.11
       - name: Build and test
-        run: sbt test undeclaredCompileDependenciesTest unusedCompileDependenciesTest
+        run: >-
+          sbt
+            test
+            undeclaredCompileDependenciesTest
+            unusedCompileDependenciesTest
