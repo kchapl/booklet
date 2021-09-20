@@ -3,6 +3,7 @@ package booklet
 import booklet.http.CustomResponse.toContent
 import booklet.http.{CustomResponse, Query}
 import booklet.model.{BookData, BookId}
+import booklet.services.book_handler.BookHandler
 import booklet.services.configuration.Configuration
 import booklet.services.database.Database
 import booklet.views.BookView
@@ -22,6 +23,11 @@ object Router extends zio.App {
     )
   }
 
+  private val bookApp2: Http[Has[BookHandler], Throwable, Request, UResponse] =
+    Http.collectM[Request] { case Method.GET -> Root / "books" =>
+      BookHandler.fetchAll
+    }
+
   private val bookApp: Http[Has[Database], Throwable, Request, UResponse] =
     Http.collectM[Request] {
 
@@ -40,7 +46,7 @@ object Router extends zio.App {
         ZIO
           .fromOption(bookId.toLongOption)
           .map(BookId)
-          .foldZIO(
+          .foldM(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -72,7 +78,7 @@ object Router extends zio.App {
         val requestQry = Query.fromRequest(req)
         ZIO
           .fromOption(BookData.completeFromHttpQuery(requestQry))
-          .foldZIO(
+          .foldM(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -102,7 +108,7 @@ object Router extends zio.App {
         ZIO
           .fromOption(bookId.toLongOption)
           .map(BookId)
-          .foldZIO(
+          .foldM(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -131,7 +137,7 @@ object Router extends zio.App {
         ZIO
           .fromOption(bookId.toLongOption)
           .map(BookId)
-          .foldZIO(
+          .foldM(
             _ =>
               ZIO.succeed(
                 Response.http(
@@ -159,25 +165,27 @@ object Router extends zio.App {
 
   val program = {
     for {
-      config <- Configuration.load.toManaged
+      config <- Configuration.load.toManaged_
       server <- (Server.port(config.app.port) ++
-        Server.app(rootApp +++ bookApp)).make
+        Server.app(rootApp +++ bookApp2)).make
         .mapError(Failure(_))
         .use(_ =>
-          Console
-            .printLine(s"Server started on port ${config.app.port}")
+          console
+            .putStrLn(s"Server started on port ${config.app.port}")
             .mapError(Failure(_)) *> ZIO.never
         )
-        .toManaged
+        .toManaged_
     } yield server
   }
 
-  val layer = Configuration.live >+>
-    (ServerChannelFactory.auto ++ EventLoopGroup.auto(nThreads = 1) ++ Database.live)
-
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     program
-      .provideCustomLayer(layer)
+      .provideCustomLayer(
+        Configuration.live ++
+          (Configuration.live >>> Database.live >>> BookHandler.live) ++
+          ServerChannelFactory.auto ++
+          EventLoopGroup.auto(nThreads = 1)
+      )
       .useForever
       .exitCode
 }

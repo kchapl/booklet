@@ -1,16 +1,16 @@
 package booklet.services.database
 
-import booklet.Failure
 import booklet.model._
 import booklet.services.configuration.Configuration
+import booklet.{Config, Failure}
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
 import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
 import doobie.{Put, Read, Transactor}
-import zio._
 import zio.interop.catz._
+import zio.{Task, _}
 
 import java.sql
 import java.time.LocalDate
@@ -65,19 +65,18 @@ object Database {
     }
 
   val live: ZLayer[Has[Configuration], Failure, Has[Database]] = ZLayer.fromManaged {
+    def transactor(config: Config) = ZManaged.effect {
+      val jdbc = JdbcConfig.fromDbUrl(config.db.url)
+      Transactor.fromDriverManager[Task](
+        driver = config.db.driver,
+        url = jdbc.url,
+        user = jdbc.userName.getOrElse(""),
+        pass = jdbc.password.getOrElse("")
+      )
+    }
     for {
-      config <- Configuration.load.toManaged
-      jdbc = JdbcConfig.fromDbUrl(config.db.url)
-      xa <- ZManaged
-        .attempt(
-          Transactor.fromDriverManager[Task](
-            driver = config.db.driver,
-            url = jdbc.url,
-            user = jdbc.userName.getOrElse(""),
-            pass = jdbc.password.getOrElse("")
-          )
-        )
-        .mapError(Failure(_))
+      config <- Configuration.load.toManaged_
+      xa <- transactor(config).mapError(Failure(_))
     } yield new Database {
       val fetchAllBooks: ZIO[Any, Failure, List[Book]] =
         sql"""
