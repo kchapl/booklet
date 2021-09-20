@@ -20,7 +20,7 @@ val catsVersion = "2.6.1"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
-  "dev.zio" %% "izumi-reflect" % "2.0.0",
+  "dev.zio" %% "izumi-reflect" % "2.0.1",
   "dev.zio" %% "zio-interop-cats" % "2.5.1.0",
   "io.d11" %% "zhttp" % "1.0.0.0-RC17",
   "io.netty" % "netty-all" % "4.1.68.Final",
