@@ -3,7 +3,7 @@ package booklet.services.database
 import booklet.model._
 import booklet.services.configuration.Configuration
 import booklet.{Config, Failure}
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import cats.implicits._
 import doobie.implicits._
 import doobie.util.Get
