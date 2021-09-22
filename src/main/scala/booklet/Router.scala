@@ -24,23 +24,13 @@ object Router extends zio.App {
   }
 
   private val bookApp2: Http[Has[BookHandler], Throwable, Request, UResponse] =
-    Http.collectM[Request] { case Method.GET -> Root / "books" =>
-      BookHandler.fetchAll
+    Http.collectM[Request] {
+      case Method.GET -> Root / "books"          => BookHandler.fetchAll
+      case Method.GET -> Root / "books" / bookId => BookHandler.fetch(bookId)
     }
 
   private val bookApp: Http[Has[Database], Throwable, Request, UResponse] =
     Http.collectM[Request] {
-
-      case Method.GET -> Root / "books" =>
-        Database.fetchAllBooks
-          .fold(
-            failure =>
-              Response.http(
-                status = INTERNAL_SERVER_ERROR,
-                content = toContent(failure.message)
-              ),
-            books => CustomResponse.htmlString(BookView.list(books).toString)
-          )
 
       case Method.GET -> Root / "books" / bookId =>
         ZIO
