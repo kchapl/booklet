@@ -9,8 +9,8 @@ import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
 import doobie.{Put, Read, Transactor}
+import zio._
 import zio.interop.catz._
-import zio.{Task, _}
 
 import java.sql
 import java.time.LocalDate
@@ -64,19 +64,21 @@ object Database {
       Reading(id, book, completed, Rating(rating))
     }
 
-  val live: ZLayer[Has[Configuration], Failure, Has[Database]] = ZLayer.fromManaged {
-    def transactor(config: Config) = ZManaged.effect {
+  val live: ZLayer[Has[Configuration], Failure, Has[Database]] = {
+    def transactor(config: Config) = {
       val jdbc = JdbcConfig.fromDbUrl(config.db.url)
-      Transactor.fromDriverManager[Task](
-        driver = config.db.driver,
-        url = jdbc.url,
-        user = jdbc.userName.getOrElse(""),
-        pass = jdbc.password.getOrElse("")
-      )
+      Transactor
+        .fromDriverManager[Task](
+          driver = config.db.driver,
+          url = jdbc.url,
+          user = jdbc.userName.getOrElse(""),
+          pass = jdbc.password.getOrElse("")
+        )
     }
+
     for {
-      config <- Configuration.load.toManaged_
-      xa <- transactor(config).mapError(Failure(_))
+      config <- Configuration.load
+      xa = transactor(config)
     } yield new Database {
       val fetchAllBooks: ZIO[Any, Failure, List[Book]] =
         sql"""
@@ -102,9 +104,9 @@ object Database {
 
       def insertBook(data: BookData): ZIO[Any, Failure, Unit] =
         sql"""
-               |INSERT INTO books(isbn, author, title)
-               |VALUES (${data.isbn}, ${data.author}, ${data.title})
-               |""".stripMargin.update
+             |INSERT INTO books(isbn, author, title)
+             |VALUES (${data.isbn}, ${data.author}, ${data.title})
+             |""".stripMargin.update
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)
           .mapBoth(
@@ -134,14 +136,14 @@ object Database {
 
       def deleteBook(id: BookId): ZIO[Any, Failure, Unit] =
         sql"""
-               |DELETE FROM books
-               |WHERE id = $id
-               |""".stripMargin.update.run
+             |DELETE FROM books
+             |WHERE id = $id
+             |""".stripMargin.update.run
           .transact(xa)
           .mapBoth(
             Failure(_),
             _ => ()
           )
     }
-  }
+  }.toLayer
 }
