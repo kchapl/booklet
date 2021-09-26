@@ -1,10 +1,10 @@
 package booklet
 
-import booklet.http.CustomResponse.toContent
-import booklet.http.{CustomResponse, Query}
+import booklet.http.CustomResponse.{ok, toContent}
+import booklet.http.Query
 import booklet.model.{BookData, BookId}
-import booklet.services.book_handler.BookHandler
-import booklet.services.configuration.Configuration
+import booklet.services.book_handler.{BookHandler, BookHandlerLive}
+import booklet.services.configuration.{Configuration, ConfigurationLive}
 import booklet.services.database.Database
 import booklet.views.BookView
 import io.netty.handler.codec.http.HttpHeaderNames.LOCATION
@@ -59,7 +59,7 @@ object Router extends zio.App {
                         status = NOT_FOUND,
                         content = toContent(s"No such book: $bookId")
                       )
-                    case Some(book) => CustomResponse.htmlString(BookView.list(Seq(book)).toString)
+                    case Some(book) => ok(BookView.list(Seq(book)).toString)
                   }
                 )
           )
@@ -155,7 +155,7 @@ object Router extends zio.App {
 
   val program = {
     for {
-      config <- Configuration.load.toManaged_
+      config <- Configuration.get
       server <- (Server.port(config.app.port) ++
         Server.app(rootApp +++ bookApp2)).make
         .mapError(Failure(_))
@@ -164,18 +164,16 @@ object Router extends zio.App {
             .putStrLn(s"Server started on port ${config.app.port}")
             .mapError(Failure(_)) *> ZIO.never
         )
-        .toManaged_
     } yield server
   }
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     program
       .provideCustomLayer(
-        Configuration.live ++
-          (Configuration.live >>> Database.live >>> BookHandler.live) ++
+        ConfigurationLive.layer ++
+          (ConfigurationLive.layer >>> Database.live >>> BookHandlerLive.layer) ++
           ServerChannelFactory.auto ++
           EventLoopGroup.auto(nThreads = 1)
       )
-      .useForever
       .exitCode
 }
