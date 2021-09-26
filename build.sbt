@@ -37,7 +37,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-kernel" % catsVersion,
   "org.typelevel" %% "cats-effect" % "2.5.1",
   "com.chuusai" %% "shapeless" % "2.3.7",
-  "org.postgresql" % "postgresql" % "42.2.23" % Runtime,
+  "org.postgresql" % "postgresql" % "42.2.24" % Runtime,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test
 )
