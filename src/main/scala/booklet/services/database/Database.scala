@@ -77,7 +77,7 @@ object Database {
     }
 
     for {
-      config <- Configuration.load
+      config <- Configuration.get
       xa = transactor(config)
     } yield new Database {
       val fetchAllBooks: ZIO[Any, Failure, List[Book]] =
