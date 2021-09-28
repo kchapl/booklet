@@ -1,7 +1,6 @@
 package booklet.services.configuration
 
 import booklet.{Config, Failure}
-import pureconfig.generic.auto._
 import zio._
 
 object ConfigurationLive {

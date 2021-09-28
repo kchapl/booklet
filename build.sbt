@@ -3,7 +3,7 @@ import sbt.Keys.semanticdbEnabled
 name := "booklet"
 
 scalaVersion := "2.13.6"
-scalacOptions ++= Seq("-deprecation", "-Wunused", "-Xlint:adapted-args")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 
 // required by Scalafix
 semanticdbEnabled := true
