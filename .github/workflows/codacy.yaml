@@ -1,0 +1,16 @@
+name: Codacy analysis
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  CodacyAnalysis:
+    name: Codacy analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Codacy analysis
+        uses: codacy/codacy-analysis-cli-action@4.0.0
