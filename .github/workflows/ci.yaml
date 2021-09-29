@@ -12,9 +12,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: Set up Scala
-        uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v13
         with:
           java-version: adopt@1.11
-      - name: Build and test
+      - name: Compile and test
         run: >-
           sbt test undeclaredCompileDependenciesTest unusedCompileDependenciesTest
+      - name: Run Codacy analysis
+        uses: codacy/codacy-analysis-cli-action@4.0.0
