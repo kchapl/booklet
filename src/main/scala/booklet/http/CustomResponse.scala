@@ -1,10 +1,10 @@
 package booklet.http
 
 import booklet.Failure
-import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
+import io.netty.handler.codec.http.HttpHeaderNames.{CONTENT_TYPE, LOCATION}
 import io.netty.handler.codec.http.HttpHeaderValues.TEXT_HTML
 import zhttp.http.HttpData.CompleteData
-import zhttp.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
+import zhttp.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, SEE_OTHER}
 import zhttp.http._
 import zio.Chunk
 
@@ -17,6 +17,12 @@ object CustomResponse {
     Response.http(
       headers = List(Header(CONTENT_TYPE, TEXT_HTML)),
       content = toContent(data)
+    )
+
+  def seeOther(path: String): UHttpResponse =
+    Response.http(
+      status = SEE_OTHER,
+      headers = List(Header(LOCATION, path))
     )
 
   def badRequest(message: String): UHttpResponse =

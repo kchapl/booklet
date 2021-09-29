@@ -1,10 +1,9 @@
 package booklet
 
+import booklet.http.CustomResponse.seeOther
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
 import booklet.services.configuration.{Configuration, ConfigurationLive}
 import booklet.services.database.Database
-import io.netty.handler.codec.http.HttpHeaderNames.LOCATION
-import zhttp.http.Status.SEE_OTHER
 import zhttp.http._
 import zhttp.service.server.ServerChannelFactory
 import zhttp.service.{EventLoopGroup, Server}
@@ -13,81 +12,18 @@ import zio._
 object Router extends zio.App {
 
   private val rootApp = Http.collect[Request] { case Method.GET -> Root =>
-    Response.http(
-      status = SEE_OTHER,
-      headers = List(Header(LOCATION, "/books"))
-    )
+    seeOther(path = "/books")
   }
 
-  private val bookApp2: Http[Has[BookHandler], Throwable, Request, UResponse] =
+  private val bookApp: Http[Has[BookHandler], Throwable, Request, UResponse] =
     Http.collectM[Request] {
       case Method.GET -> Root / "books"          => BookHandler.fetchAll
       case Method.GET -> Root / "books" / bookId => BookHandler.fetch(bookId)
+      case req @ Method.POST -> Root / "books"   => BookHandler.create(req)
     }
 
   //  private val bookApp: Http[Has[Database], Throwable, Request, UResponse] =
   //    Http.collectM[Request] {
-  //
-  //      case Method.GET -> Root / "books" / bookId =>
-  //        ZIO
-  //          .fromOption(bookId.toLongOption)
-  //          .map(BookId)
-  //          .foldM(
-  //            _ =>
-  //              ZIO.succeed(
-  //                Response.http(
-  //                  status = BAD_REQUEST,
-  //                  content = toContent(s"Cannot parse ID $bookId")
-  //                )
-  //              ),
-  //            id =>
-  //              Database
-  //                .fetchBook(id)
-  //                .fold(
-  //                  failure =>
-  //                    Response.http(
-  //                      status = INTERNAL_SERVER_ERROR,
-  //                      content = toContent(failure.message)
-  //                    ),
-  //                  {
-  //                    case None =>
-  //                      Response.http(
-  //                        status = NOT_FOUND,
-  //                        content = toContent(s"No such book: $bookId")
-  //                      )
-  //                    case Some(book) => ok(BookView.list(Seq(book)).toString)
-  //                  }
-  //                )
-  //          )
-  //
-  //      case req @ Method.POST -> Root / "books" =>
-  //        val requestQry = Query.fromRequest(req)
-  //        ZIO
-  //          .fromOption(BookData.completeFromHttpQuery(requestQry))
-  //          .foldM(
-  //            _ =>
-  //              ZIO.succeed(
-  //                Response.http(
-  //                  status = BAD_REQUEST,
-  //                  content = toContent(requestQry.toString)
-  //                )
-  //              ),
-  //            bookData =>
-  //              Database
-  //                .insertBook(bookData)
-  //                .fold(
-  //                  failure =>
-  //                    Response.http(
-  //                      status = INTERNAL_SERVER_ERROR,
-  //                      content = toContent(failure.message)
-  //                    ),
-  //                  _ =>
-  //                    Response.http(
-  //                      status = SEE_OTHER,
-  //                      headers = List(Header(LOCATION, "/books"))
-  //                    )
-  //                )
-  //          )
   //
   //      case req @ Method.PATCH -> Root / "books" / bookId =>
   //        val requestQry = Query.fromRequest(req)
@@ -151,7 +87,7 @@ object Router extends zio.App {
 
   private val program =
     Configuration.get.toManaged_.flatMap { config =>
-      (Server.port(config.app.port) ++ Server.app(rootApp +++ bookApp2)).make
+      (Server.port(config.app.port) ++ Server.app(rootApp +++ bookApp)).make
         .mapError(Failure(_))
         .use(_ =>
           console

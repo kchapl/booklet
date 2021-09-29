@@ -1,10 +1,11 @@
 package booklet.services.book_handler
 
-import booklet.http.CustomResponse.{badRequest, notFound, ok, serverFailure}
-import booklet.model.BookId
+import booklet.http.CustomResponse._
+import booklet.http.Query
+import booklet.model.{BookData, BookId}
 import booklet.services.database.Database
 import booklet.views.BookView
-import zhttp.http.UResponse
+import zhttp.http.{Request, UResponse}
 import zio.{Has, UIO, URLayer, ZIO}
 
 object BookHandlerLive {
@@ -14,29 +15,49 @@ object BookHandlerLive {
 
   private def toBookHandler(db: Database): BookHandler =
     new BookHandler {
-      val fetchAll: UIO[UResponse] =
-        db.fetchAllBooks
-          .fold(
-            serverFailure,
-            books => ok(BookView.list(books).toString)
-          )
-
-      def fetch(bookId: String): UIO[UResponse] =
-        ZIO
-          .fromOption(bookId.toLongOption)
-          .map(BookId)
-          .foldM(
-            _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
-            id =>
-              db
-                .fetchBook(id)
-                .fold(
-                  serverFailure,
-                  {
-                    case None       => notFound(s"No such book: $bookId")
-                    case Some(book) => ok(BookView.list(Seq(book)).toString)
-                  }
-                )
-          )
+      val fetchAll: UIO[UResponse] = fetchAllFrom(db)
+      def fetch(bookId: String): UIO[UResponse] = fetchFrom(db)(bookId)
+      def create(request: Request): UIO[UResponse] = createFrom(db)(request)
     }
+
+  private def fetchAllFrom(db: Database) =
+    db.fetchAllBooks
+      .fold(
+        serverFailure,
+        books => ok(BookView.list(books).toString)
+      )
+
+  private def fetchFrom(db: Database)(bookId: String) =
+    ZIO
+      .fromOption(bookId.toLongOption)
+      .map(BookId)
+      .foldM(
+        _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
+        id =>
+          db
+            .fetchBook(id)
+            .fold(
+              serverFailure,
+              {
+                case None       => notFound(s"No such book: $bookId")
+                case Some(book) => ok(BookView.list(Seq(book)).toString)
+              }
+            )
+      )
+
+  private def createFrom(db: Database)(request: Request) = {
+    val requestQry = Query.fromRequest(request)
+    ZIO
+      .fromOption(BookData.completeFromHttpQuery(requestQry))
+      .foldM(
+        _ => ZIO.succeed(badRequest(requestQry.toString)),
+        bookData =>
+          db
+            .insertBook(bookData)
+            .fold(
+              serverFailure,
+              _ => seeOther(path = "/books")
+            )
+      )
+  }
 }
