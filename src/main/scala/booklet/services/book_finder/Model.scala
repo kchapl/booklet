@@ -1,6 +1,7 @@
 package booklet.services.book_finder
 
 import booklet.model.{Author, BookData, Isbn, Title}
+import cats.implicits._
 import upickle.legacy.{macroR, Reader}
 
 object Model {
@@ -45,7 +46,7 @@ object Model {
     implicit val reader: Reader[GoogleBookResult] = macroR
 
     def toBook(result: GoogleBookResult): Option[BookData] =
-      if (result.totalItems == 1)
+      if (result.totalItems === 1)
         for {
           item <- result.items.headOption
           info = item.volumeInfo
@@ -54,7 +55,7 @@ object Model {
           Some(
             Isbn(
               info.industryIdentifiers
-                .find(_.`type` == "ISBN_13")
+                .find(_.`type` === "ISBN_13")
                 .map(_.identifier)
                 .getOrElse("Unknown")
             )
