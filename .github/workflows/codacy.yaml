@@ -1,4 +1,4 @@
-name: Codacy security scan
+name: Codacy analysis
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  codacy-security-scan:
-    name: Codacy security scan
+  codacy-analysis:
+    name: Codacy analysis
     runs-on: ubuntu-latest
     steps:
 
@@ -18,16 +18,4 @@ jobs:
       - name: Run Codacy analysis
         uses: codacy/codacy-analysis-cli-action@4.0.0
         with:
-          output: results.sarif
-          format: sarif
-          # Adjust severity of non-security issues
-          gh-code-scanning-compat: true
-          # Force 0 exit code to allow SARIF file generation
-          # This will hand over control about PR rejection to the GitHub side
-          max-allowed-issues: 2147483647
-
-      # Upload the SARIF file generated in the previous step
-      - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: results.sarif
+          allow-network: true
