@@ -16,8 +16,12 @@ object BookHandlerLive {
   private def toBookHandler(db: Database): BookHandler =
     new BookHandler {
       val fetchAll: UIO[UResponse] = fetchAllFrom(db)
+
       def fetch(bookId: String): UIO[UResponse] = fetchFrom(db)(bookId)
+
       def create(request: Request): UIO[UResponse] = createFrom(db)(request)
+
+      def update(bookId: String)(request: Request): UIO[UResponse] = updateFrom(db)(bookId)(request)
     }
 
   private def fetchAllFrom(db: Database) =
@@ -57,6 +61,23 @@ object BookHandlerLive {
             .fold(
               serverFailure,
               _ => seeOther(path = "/books")
+            )
+      )
+  }
+
+  private def updateFrom(db: Database)(bookId: String)(request: Request) = {
+    val requestQry = Query.fromRequest(request)
+    ZIO
+      .fromOption(bookId.toLongOption)
+      .map(BookId)
+      .foldM(
+        _ => ZIO.succeed(badRequest(requestQry.toString)),
+        id =>
+          db
+            .updateBook(id, BookData.partialFromHttpQuery(requestQry))
+            .fold(
+              serverFailure,
+              _ => seeOther("/books")
             )
       )
   }
