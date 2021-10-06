@@ -22,7 +22,14 @@ object BookHandlerLive {
       def create(request: Request): UIO[UResponse] = createFrom(db)(request)
 
       def update(bookId: String)(request: Request): UIO[UResponse] = updateFrom(db)(bookId)(request)
+
+      def delete(bookId: String): UIO[UResponse] = deleteFrom(db)(bookId)
     }
+
+  private def toBookId(bookId: String): ZIO[Any, Option[Nothing], BookId] =
+    ZIO
+      .fromOption(bookId.toLongOption)
+      .map(BookId)
 
   private def fetchAllFrom(db: Database) =
     db.fetchAllBooks
@@ -32,9 +39,7 @@ object BookHandlerLive {
       )
 
   private def fetchFrom(db: Database)(bookId: String) =
-    ZIO
-      .fromOption(bookId.toLongOption)
-      .map(BookId)
+    toBookId(bookId)
       .foldM(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
         id =>
@@ -67,9 +72,7 @@ object BookHandlerLive {
 
   private def updateFrom(db: Database)(bookId: String)(request: Request) = {
     val requestQry = Query.fromRequest(request)
-    ZIO
-      .fromOption(bookId.toLongOption)
-      .map(BookId)
+    toBookId(bookId)
       .foldM(
         _ => ZIO.succeed(badRequest(requestQry.toString)),
         id =>
@@ -81,4 +84,17 @@ object BookHandlerLive {
             )
       )
   }
+
+  private def deleteFrom(db: Database)(bookId: String) =
+    toBookId(bookId)
+      .foldM(
+        _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
+        id =>
+          db
+            .deleteBook(id)
+            .fold(
+              serverFailure,
+              _ => seeOther("/books")
+            )
+      )
 }

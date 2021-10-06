@@ -18,44 +18,12 @@ object Router extends zio.App {
 
   private val bookApp: Http[Has[BookHandler], Throwable, Request, UResponse] =
     Http.collectM[Request] {
-      case GET -> Root / "books"                  => BookHandler.fetchAll
-      case GET -> Root / "books" / bookId         => BookHandler.fetch(bookId)
-      case req @ POST -> Root / "books"           => BookHandler.create(req)
-      case req @ PATCH -> Root / "books" / bookId => BookHandler.update(bookId)(req)
+      case GET -> Root / "books"                    => BookHandler.fetchAll
+      case GET -> Root / "books" / bookId           => BookHandler.fetch(bookId)
+      case req @ POST -> Root / "books"             => BookHandler.create(req)
+      case req @ PATCH -> Root / "books" / bookId   => BookHandler.update(bookId)(req)
+      case Method.DELETE -> Root / "books" / bookId => BookHandler.delete(bookId)
     }
-
-  //  private val bookApp: Http[Has[Database], Throwable, Request, UResponse] =
-  //    Http.collectM[Request] {
-  //
-  //      case Method.DELETE -> Root / "books" / bookId =>
-  //        ZIO
-  //          .fromOption(bookId.toLongOption)
-  //          .map(BookId)
-  //          .foldM(
-  //            _ =>
-  //              ZIO.succeed(
-  //                Response.http(
-  //                  status = BAD_REQUEST,
-  //                  content = toContent(bookId)
-  //                )
-  //              ),
-  //            id =>
-  //              Database
-  //                .deleteBook(id)
-  //                .fold(
-  //                  failure =>
-  //                    Response.http(
-  //                      status = INTERNAL_SERVER_ERROR,
-  //                      content = toContent(failure.message)
-  //                    ),
-  //                  _ =>
-  //                    Response.http(
-  //                      status = SEE_OTHER,
-  //                      headers = List(Header(LOCATION, "/books"))
-  //                    )
-  //                )
-  //          )
-  //    }
 
   private val program =
     Configuration.get.toManaged_.flatMap { config =>
