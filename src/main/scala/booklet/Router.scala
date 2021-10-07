@@ -3,7 +3,7 @@ package booklet
 import booklet.http.CustomResponse.seeOther
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
 import booklet.services.configuration.{Configuration, ConfigurationLive}
-import booklet.services.database.Database
+import booklet.services.database.DatabaseLive
 import zhttp.http.Method.{GET, PATCH, POST}
 import zhttp.http._
 import zhttp.service.server.ServerChannelFactory
@@ -41,7 +41,7 @@ object Router extends zio.App {
     program
       .provideCustomLayer(
         ConfigurationLive.layer ++
-          (ConfigurationLive.layer >>> Database.live >>> BookHandlerLive.layer) ++
+          (ConfigurationLive.layer >>> DatabaseLive.layer >>> BookHandlerLive.layer) ++
           ServerChannelFactory.auto ++
           EventLoopGroup.auto(nThreads = 1)
       )
