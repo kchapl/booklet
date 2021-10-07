@@ -2,4 +2,4 @@ package booklet.model
 
 import java.time.LocalDate
 
-case class Reading(id: Long, book: Book, completed: LocalDate, rating: Rating)
+case class Reading(id: ReadingId, book: Book, completed: LocalDate, rating: Rating)

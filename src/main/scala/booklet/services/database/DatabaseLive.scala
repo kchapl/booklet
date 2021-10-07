@@ -34,7 +34,7 @@ object DatabaseLive {
 
   implicit val readingRead: Read[Reading] =
     Read[(Long, Book, LocalDate, Int)].map { case (id, book, completed, rating) =>
-      Reading(id, book, completed, Rating(rating))
+      Reading(ReadingId(id), book, completed, Rating(rating))
     }
 
   val layer: ZLayer[Has[Configuration], Failure, Has[Database]] = {
@@ -66,6 +66,18 @@ object DatabaseLive {
              |FROM books
              |""".stripMargin
           .query[Book]
+          .to[List]
+          .transact(xa)
+          .mapError(Failure(_))
+
+      val fetchAllReadings: ZIO[Any, Failure, List[Reading]] =
+        sql"""
+             |SELECT r.id, b.id, b.isbn, b.author, b.title, r.completed, r.rating
+             |FROM books b
+             |JOIN readings r 
+             |ON r.book_id = b.id
+             |""".stripMargin
+          .query[Reading]
           .to[List]
           .transact(xa)
           .mapError(Failure(_))

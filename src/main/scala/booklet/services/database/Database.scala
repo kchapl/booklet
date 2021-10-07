@@ -6,6 +6,7 @@ import zio._
 
 trait Database {
   val fetchAllBooks: ZIO[Any, Failure, List[Book]]
+  val fetchAllReadings: ZIO[Any, Failure, List[Reading]]
 
   def fetchBook(id: BookId): ZIO[Any, Failure, Option[Book]]
 
