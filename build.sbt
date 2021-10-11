@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "izumi-reflect" % "2.0.1",
   "dev.zio" %% "zio-interop-cats" % "2.5.1.0",
   "io.d11" %% "zhttp" % "1.0.0.0-RC17",
-  "io.netty" % "netty-all" % "4.1.68.Final",
+  "io.netty" % "netty-all" % "4.1.69.Final",
   "com.lihaoyi" %% "upickle" % upickleVersion,
   "com.lihaoyi" %% "upickle-core" % upickleVersion,
   "com.lihaoyi" %% "upickle-implicits" % upickleVersion,
