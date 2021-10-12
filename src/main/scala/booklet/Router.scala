@@ -27,8 +27,9 @@ object Router extends zio.App {
     }
 
   private val readingApp: Http[Has[ReadingHandler], Throwable, Request, UResponse] =
-    Http.collectM[Request] { case GET -> Root / "readings" =>
-      ReadingHandler.fetchAll
+    Http.collectM[Request] {
+      case GET -> Root / "readings"             => ReadingHandler.fetchAll
+      case GET -> Root / "readings" / readingId => ReadingHandler.fetch(readingId)
     }
 
   private val program =
