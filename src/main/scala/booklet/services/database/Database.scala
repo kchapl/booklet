@@ -9,28 +9,11 @@ trait Database {
   val fetchAllReadings: ZIO[Any, Failure, List[Reading]]
 
   def fetchBook(id: BookId): ZIO[Any, Failure, Option[Book]]
+  def fetchReading(id: ReadingId): ZIO[Any, Failure, Option[Reading]]
 
   def insertBook(data: BookData): ZIO[Any, Failure, Unit]
 
   def updateBook(id: BookId, data: BookData): ZIO[Any, Failure, Unit]
 
   def deleteBook(id: BookId): ZIO[Any, Failure, Unit]
-}
-
-object Database {
-
-  val fetchAllBooks: ZIO[Has[Database], Failure, List[Book]] =
-    ZIO.serviceWith(_.fetchAllBooks)
-
-  def fetchBook(id: BookId): ZIO[Has[Database], Failure, Option[Book]] =
-    ZIO.serviceWith(_.fetchBook(id))
-
-  def insertBook(data: BookData): ZIO[Has[Database], Failure, Unit] =
-    ZIO.serviceWith(_.insertBook(data))
-
-  def updateBook(id: BookId, data: BookData): ZIO[Has[Database], Failure, Unit] =
-    ZIO.serviceWith(_.updateBook(id, data))
-
-  def deleteBook(id: BookId): ZIO[Has[Database], Failure, Unit] =
-    ZIO.serviceWith(_.deleteBook(id))
 }

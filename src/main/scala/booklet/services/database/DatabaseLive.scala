@@ -8,7 +8,7 @@ import cats.implicits._
 import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
-import doobie.{Put, Read, Transactor}
+import doobie.{Read, Transactor}
 import zio._
 import zio.interop.catz._
 
@@ -24,8 +24,8 @@ object DatabaseLive {
   implicit val dateGet: Get[LocalDate] =
     Get[Date].map(date => new sql.Date(date.getTime).toLocalDate)
 
-  implicit val datePut: Put[LocalDate] =
-    Put[Date].contramap(date => sql.Date.valueOf(date))
+  //  implicit val datePut: Put[LocalDate] =
+  //    Put[Date].contramap(date => sql.Date.valueOf(date))
 
   implicit val bookRead: Read[Book] =
     Read[(Long, String, String, String)].map { case (id, isbn, author, title) =>
@@ -68,7 +68,7 @@ object DatabaseLive {
           .query[Book]
           .to[List]
           .transact(xa)
-          .mapError(Failure(_))
+          .mapError(Failure.apply)
 
       val fetchAllReadings: ZIO[Any, Failure, List[Reading]] =
         sql"""
@@ -80,7 +80,7 @@ object DatabaseLive {
           .query[Reading]
           .to[List]
           .transact(xa)
-          .mapError(Failure(_))
+          .mapError(Failure.apply)
 
       def fetchBook(id: BookId): ZIO[Any, Failure, Option[Book]] =
         sql"""
@@ -92,7 +92,20 @@ object DatabaseLive {
           .query[Book]
           .option
           .transact(xa)
-          .mapError(Failure(_))
+          .mapError(Failure.apply)
+
+      def fetchReading(id: ReadingId): ZIO[Any, Failure, Option[Reading]] =
+        sql"""
+             |SELECT r.id, b.id, b.isbn, b.author, b.title, r.completed, r.rating
+             |FROM books b
+             |JOIN readings r 
+             |ON r.book_id = b.id
+             |WHERE r.id = $id
+             |""".stripMargin
+          .query[Reading]
+          .option
+          .transact(xa)
+          .mapError(Failure.apply)
 
       def insertBook(data: BookData): ZIO[Any, Failure, Unit] =
         sql"""
@@ -102,7 +115,7 @@ object DatabaseLive {
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)
           .mapBoth(
-            Failure(_),
+            Failure.apply,
             _ => ()
           )
 
@@ -121,7 +134,7 @@ object DatabaseLive {
         fr"UPDATE books SET $updateClause WHERE id=$id".update.run
           .transact(xa)
           .mapBoth(
-            Failure(_),
+            Failure.apply,
             _ => ()
           )
       }
@@ -133,7 +146,7 @@ object DatabaseLive {
              |""".stripMargin.update.run
           .transact(xa)
           .mapBoth(
-            Failure(_),
+            Failure.apply,
             _ => ()
           )
     }
