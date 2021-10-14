@@ -8,7 +8,7 @@ import cats.implicits._
 import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
-import doobie.{Read, Transactor}
+import doobie.{Put, Read, Transactor}
 import zio._
 import zio.interop.catz._
 
@@ -24,8 +24,8 @@ object DatabaseLive {
   implicit val dateGet: Get[LocalDate] =
     Get[Date].map(date => new sql.Date(date.getTime).toLocalDate)
 
-  //  implicit val datePut: Put[LocalDate] =
-  //    Put[Date].contramap(date => sql.Date.valueOf(date))
+  implicit val datePut: Put[LocalDate] =
+    Put[Date].contramap(date => sql.Date.valueOf(date))
 
   implicit val bookRead: Read[Book] =
     Read[(Long, String, String, String)].map { case (id, isbn, author, title) =>
@@ -111,6 +111,18 @@ object DatabaseLive {
         sql"""
              |INSERT INTO books(isbn, author, title)
              |VALUES (${data.isbn}, ${data.author}, ${data.title})
+             |""".stripMargin.update
+          .withUniqueGeneratedKeys[Long]("id")
+          .transact(xa)
+          .mapBoth(
+            Failure.apply,
+            _ => ()
+          )
+
+      def insertReading(data: ReadingData): ZIO[Any, Failure, Unit] =
+        sql"""
+             |INSERT INTO readings(book_id, completed, rating)
+             |VALUES (${data.bookId}, ${data.completed}, ${data.rating})
              |""".stripMargin.update
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)

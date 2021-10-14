@@ -19,12 +19,12 @@ object BookData {
     author <- qry.get("author")
     title <- qry.get("title")
   } yield BookData(
-    Some(Isbn(isbn)),
-    Some(Author(author)),
-    Some(Title(title)),
-    None,
-    None,
-    None
+    isbn = Some(Isbn(isbn)),
+    author = Some(Author(author)),
+    title = Some(Title(title)),
+    subtitle = None,
+    thumbnail = None,
+    smallThumbnail = None
   )
 
   def partialFromHttpQuery(qry: Map[String, String]): BookData = BookData(

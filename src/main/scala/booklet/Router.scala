@@ -30,6 +30,7 @@ object Router extends zio.App {
     Http.collectM[Request] {
       case GET -> Root / "readings"             => ReadingHandler.fetchAll
       case GET -> Root / "readings" / readingId => ReadingHandler.fetch(readingId)
+      case req @ POST -> Root / "readings"      => ReadingHandler.create(req)
     }
 
   private val program =

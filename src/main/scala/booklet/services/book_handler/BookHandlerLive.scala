@@ -29,7 +29,7 @@ object BookHandlerLive {
   private def toBookId(bookId: String): ZIO[Any, Option[Nothing], BookId] =
     ZIO
       .fromOption(bookId.toLongOption)
-      .map(BookId)
+      .map(BookId(_))
 
   private def fetchAllFrom(db: Database) =
     db.fetchAllBooks

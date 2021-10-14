@@ -12,6 +12,7 @@ trait Database {
   def fetchReading(id: ReadingId): ZIO[Any, Failure, Option[Reading]]
 
   def insertBook(data: BookData): ZIO[Any, Failure, Unit]
+  def insertReading(data: ReadingData): ZIO[Any, Failure, Unit]
 
   def updateBook(id: BookId, data: BookData): ZIO[Any, Failure, Unit]
 

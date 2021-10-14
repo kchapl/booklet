@@ -1,10 +1,11 @@
 package booklet.services.reading_handler
 
 import booklet.http.CustomResponse._
-import booklet.model.ReadingId
+import booklet.http.Query
+import booklet.model.{ReadingData, ReadingId}
 import booklet.services.database.Database
 import booklet.views.ReadingView
-import zhttp.http.UResponse
+import zhttp.http.{Request, UResponse}
 import zio.{Has, UIO, URLayer, ZIO}
 
 object ReadingHandlerLive {
@@ -17,6 +18,8 @@ object ReadingHandlerLive {
       val fetchAll: UIO[UResponse] = fetchAllFrom(db)
 
       def fetch(readingId: String): UIO[UResponse] = fetchFrom(db)(readingId)
+
+      def create(request: Request): UIO[UResponse] = createFrom(db)(request)
     }
 
   private def toReadingId(readingId: String): ZIO[Any, Option[Nothing], ReadingId] =
@@ -46,4 +49,20 @@ object ReadingHandlerLive {
               }
             )
       )
+
+  private def createFrom(db: Database)(request: Request) = {
+    val requestQry = Query.fromRequest(request)
+    ZIO
+      .fromOption(ReadingData.completeFromHttpQuery(requestQry))
+      .foldM(
+        _ => ZIO.succeed(badRequest(requestQry.toString)),
+        readingData =>
+          db
+            .insertReading(readingData)
+            .fold(
+              serverFailure,
+              _ => seeOther(path = "/readings")
+            )
+      )
+  }
 }
