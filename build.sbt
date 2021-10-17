@@ -17,13 +17,17 @@ val zioVersion = "1.0.12"
 val pureConfigVersion = "0.17.0"
 val upickleVersion = "1.4.2"
 val catsVersion = "2.6.1"
+val nettyVersion = "4.1.69.Final"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "izumi-reflect" % "2.0.1",
   "dev.zio" %% "zio-interop-cats" % "2.5.1.0",
   "io.d11" %% "zhttp" % "1.0.0.0-RC17",
-  "io.netty" % "netty-all" % "4.1.68.Final",
+  "io.netty" % "netty-codec-http" % nettyVersion,
+  "io.netty" % "netty-common" % nettyVersion,
+  "io.netty" % "netty-transport" % nettyVersion,
+  "io.netty" % "netty-all" % nettyVersion,
   "com.lihaoyi" %% "upickle" % upickleVersion,
   "com.lihaoyi" %% "upickle-core" % upickleVersion,
   "com.lihaoyi" %% "upickle-implicits" % upickleVersion,
