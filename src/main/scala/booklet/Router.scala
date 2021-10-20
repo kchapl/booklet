@@ -28,19 +28,20 @@ object Router extends zio.App {
 
   private val readingApp: Http[Has[ReadingHandler], Throwable, Request, UResponse] =
     Http.collectM[Request] {
-      case GET -> Root / "readings"             => ReadingHandler.fetchAll
-      case GET -> Root / "readings" / readingId => ReadingHandler.fetch(readingId)
-      case req @ POST -> Root / "readings"      => ReadingHandler.create(req)
+      case GET -> Root / "readings"                     => ReadingHandler.fetchAll
+      case GET -> Root / "readings" / readingId         => ReadingHandler.fetch(readingId)
+      case req @ POST -> Root / "readings"              => ReadingHandler.create(req)
+      case req @ PATCH -> Root / "readings" / readingId => ReadingHandler.update(readingId)(req)
     }
 
   private val program =
     Configuration.get.toManaged_.flatMap { config =>
       (Server.port(config.app.port) ++ Server.app(rootApp +++ bookApp +++ readingApp)).make
-        .mapError(Failure(_))
+        .mapError(Failure.fromThrowable)
         .use(_ =>
           console
             .putStrLn(s"Server started on port ${config.app.port}")
-            .mapError(Failure(_)) *> ZIO.never
+            .mapError(Failure.fromThrowable) *> ZIO.never
         )
         .toManaged_
     }

@@ -15,6 +15,7 @@ trait Database {
   def insertReading(data: ReadingData): ZIO[Any, Failure, Unit]
 
   def updateBook(id: BookId, data: BookData): ZIO[Any, Failure, Unit]
+  def updateReading(id: ReadingId, data: ReadingData): ZIO[Any, Failure, Unit]
 
   def deleteBook(id: BookId): ZIO[Any, Failure, Unit]
 }

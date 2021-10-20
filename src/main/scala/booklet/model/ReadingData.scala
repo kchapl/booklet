@@ -5,7 +5,7 @@ import upickle.default._
 import java.time.LocalDate
 import scala.util.Try
 
-case class ReadingData(bookId: BookId, completed: LocalDate, rating: Rating)
+case class ReadingData(bookId: Option[BookId], completed: Option[LocalDate], rating: Option[Rating])
 
 object ReadingData {
   implicit val writer: Writer[ReadingData] = macroW
@@ -20,8 +20,14 @@ object ReadingData {
     ratingStr <- qry.get("rating")
     rating <- ratingStr.toIntOption
   } yield ReadingData(
-    bookId = BookId(bookId),
-    completed = completed,
-    rating = Rating(rating)
+    bookId = Some(BookId(bookId)),
+    completed = Some(completed),
+    rating = Some(Rating(rating))
+  )
+
+  def partialFromHttpQuery(qry: Map[String, String]): ReadingData = ReadingData(
+    bookId = None,
+    completed = qry.get("completed").map(LocalDate.parse),
+    rating = qry.get("rating").flatMap(_.toIntOption.map(Rating.apply))
   )
 }

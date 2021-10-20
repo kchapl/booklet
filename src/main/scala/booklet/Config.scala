@@ -16,7 +16,7 @@ object Config {
     ConfigSource.default
       .load[Config]
       .left
-      .map(failures => Failure(ConfigReaderException(failures)))
+      .map(failures => Failure.fromThrowable(ConfigReaderException(failures)))
   )
 }
 

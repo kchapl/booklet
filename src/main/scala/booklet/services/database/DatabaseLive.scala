@@ -4,10 +4,9 @@ import booklet.Failure
 import booklet.model._
 import booklet.services.configuration.Configuration
 import cats.effect.{ContextShift, IO}
-import cats.implicits._
 import doobie.implicits._
 import doobie.util.Get
-import doobie.util.fragment.Fragment
+import doobie.util.fragments.setOpt
 import doobie.{Put, Read, Transactor}
 import zio._
 import zio.interop.catz._
@@ -68,7 +67,7 @@ object DatabaseLive {
           .query[Book]
           .to[List]
           .transact(xa)
-          .mapError(Failure.apply)
+          .mapError(Failure.fromThrowable)
 
       val fetchAllReadings: ZIO[Any, Failure, List[Reading]] =
         sql"""
@@ -80,7 +79,7 @@ object DatabaseLive {
           .query[Reading]
           .to[List]
           .transact(xa)
-          .mapError(Failure.apply)
+          .mapError(Failure.fromThrowable)
 
       def fetchBook(id: BookId): ZIO[Any, Failure, Option[Book]] =
         sql"""
@@ -92,7 +91,7 @@ object DatabaseLive {
           .query[Book]
           .option
           .transact(xa)
-          .mapError(Failure.apply)
+          .mapError(Failure.fromThrowable)
 
       def fetchReading(id: ReadingId): ZIO[Any, Failure, Option[Reading]] =
         sql"""
@@ -105,7 +104,7 @@ object DatabaseLive {
           .query[Reading]
           .option
           .transact(xa)
-          .mapError(Failure.apply)
+          .mapError(Failure.fromThrowable)
 
       def insertBook(data: BookData): ZIO[Any, Failure, Unit] =
         sql"""
@@ -115,7 +114,7 @@ object DatabaseLive {
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)
           .mapBoth(
-            Failure.apply,
+            Failure.fromThrowable,
             _ => ()
           )
 
@@ -127,26 +126,35 @@ object DatabaseLive {
           .withUniqueGeneratedKeys[Long]("id")
           .transact(xa)
           .mapBoth(
-            Failure.apply,
+            Failure.fromThrowable,
             _ => ()
           )
 
       def updateBook(id: BookId, data: BookData): ZIO[Any, Failure, Unit] = {
-        def fieldToUpdate(name: String, value: Option[String]): Option[Fragment] =
-          value.map { v =>
-            Fragment.const(name) ++ fr"=$v"
-          }
+        val q = fr"UPDATE books" ++ setOpt(
+          data.isbn.map(isbn => fr"isbn = ${isbn.value}"),
+          data.author.map(author => fr"author = ${author.value}"),
+          data.title.map(title => fr"title = ${title.value}")
+        ) ++ fr"WHERE id=$id"
 
-        val updateClause = Seq(
-          fieldToUpdate("isbn", data.isbn.map(_.value)),
-          fieldToUpdate("author", data.author.map(_.value)),
-          fieldToUpdate("title", data.title.map(_.value))
-        ).flatten.intercalate(fr",")
-
-        fr"UPDATE books SET $updateClause WHERE id=$id".update.run
+        q.update.run
           .transact(xa)
           .mapBoth(
-            Failure.apply,
+            Failure.fromThrowable,
+            _ => ()
+          )
+      }
+
+      def updateReading(id: ReadingId, data: ReadingData): ZIO[Any, Failure, Unit] = {
+        val q = fr"UPDATE readings" ++ setOpt(
+          data.completed.map(completed => fr"completed = ${completed.toString}"),
+          data.rating.map(rating => fr"rating = ${rating.value}")
+        ) ++ fr"WHERE id=$id"
+
+        q.update.run
+          .transact(xa)
+          .mapBoth(
+            Failure.fromThrowable,
             _ => ()
           )
       }
@@ -158,7 +166,7 @@ object DatabaseLive {
              |""".stripMargin.update.run
           .transact(xa)
           .mapBoth(
-            Failure.apply,
+            Failure.fromThrowable,
             _ => ()
           )
     }
