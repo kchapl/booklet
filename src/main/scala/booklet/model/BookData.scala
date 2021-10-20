@@ -28,11 +28,11 @@ object BookData {
   )
 
   def partialFromHttpQuery(qry: Map[String, String]): BookData = BookData(
-    qry.get("isbn").map(Isbn(_)),
-    qry.get("author").map(Author(_)),
-    qry.get("title").map(Title(_)),
-    None,
-    None,
-    None
+    isbn = qry.get("isbn").map(Isbn.apply),
+    author = qry.get("author").map(Author.apply),
+    title = qry.get("title").map(Title.apply),
+    subtitle = None,
+    thumbnail = None,
+    smallThumbnail = None
   )
 }
