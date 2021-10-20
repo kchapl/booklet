@@ -8,6 +8,7 @@ trait ReadingHandler {
   def fetch(readingId: String): UIO[UResponse]
   def create(request: Request): UIO[UResponse]
   def update(readingId: String)(request: Request): UIO[UResponse]
+  def delete(readingId: String): UIO[UResponse]
 }
 
 object ReadingHandler {
@@ -18,4 +19,6 @@ object ReadingHandler {
     RIO.serviceWith(_.create(request))
   def update(readingId: String)(request: Request): RIO[Has[ReadingHandler], UResponse] =
     RIO.serviceWith(_.update(readingId)(request))
+  def delete(readingId: String): RIO[Has[ReadingHandler], UResponse] =
+    RIO.serviceWith(_.delete(readingId))
 }

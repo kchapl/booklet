@@ -169,5 +169,16 @@ object DatabaseLive {
             Failure.fromThrowable,
             _ => ()
           )
+
+      def deleteReading(id: ReadingId): ZIO[Any, Failure, Unit] =
+        sql"""
+           |DELETE FROM readings
+           |WHERE id = $id
+           |""".stripMargin.update.run
+          .transact(xa)
+          .mapBoth(
+            Failure.fromThrowable,
+            _ => ()
+          )
     }
 }

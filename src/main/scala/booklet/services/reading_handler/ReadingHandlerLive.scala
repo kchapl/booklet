@@ -20,6 +20,7 @@ object ReadingHandlerLive {
       def create(request: Request): UIO[UResponse] = createFrom(db)(request)
       def update(readingId: String)(request: Request): UIO[UResponse] =
         updateFrom(db)(readingId)(request)
+      def delete(readingId: String): UIO[UResponse] = deleteFrom(db)(readingId)
     }
 
   private def toReadingId(readingId: String): ZIO[Any, Option[Nothing], ReadingId] =
@@ -80,4 +81,17 @@ object ReadingHandlerLive {
             )
       )
   }
+
+  private def deleteFrom(db: Database)(readingId: String) =
+    toReadingId(readingId)
+      .foldM(
+        _ => ZIO.succeed(badRequest(s"Cannot parse ID $readingId")),
+        id =>
+          db
+            .deleteReading(id)
+            .fold(
+              serverFailure,
+              _ => seeOther("/readings")
+            )
+      )
 }
