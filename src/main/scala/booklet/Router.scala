@@ -1,6 +1,8 @@
 package booklet
 
-import booklet.http.CustomResponse.seeOther
+import booklet.http.CustomResponse.{badRequest, notFound, seeOther, serverFailure}
+import booklet.http.Query
+import booklet.services.book_finder.BookFinder
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
 import booklet.services.configuration.{Configuration, ConfigurationLive}
 import booklet.services.database.DatabaseLive
@@ -35,9 +37,28 @@ object Router extends zio.App {
       case DELETE -> Root / "readings" / readingId      => ReadingHandler.delete(readingId)
     }
 
+  private val bookFinderApp: Http[Has[BookFinder], Throwable, Request, UResponse] =
+    Http.collectM[Request] { case req @ GET -> Root / "find" =>
+      Query.param(req)(name = "isbn") match {
+        case None => ZIO.succeed(badRequest("Missing ISBN"))
+        case Some(isbn) =>
+          BookFinder
+            .findByIsbn(isbn)
+            .fold(
+              serverFailure,
+              {
+                case None    => notFound(s"No book has ISBN $isbn")
+                case Some(a) => Response.text(a.toString)
+              }
+            )
+      }
+    }
+
   private val program =
     Configuration.get.toManaged_.flatMap { config =>
-      (Server.port(config.app.port) ++ Server.app(rootApp +++ bookApp +++ readingApp)).make
+      (Server.port(config.app.port) ++ Server.app(
+        rootApp +++ bookApp +++ readingApp +++ bookFinderApp
+      )).make
         .mapError(Failure.fromThrowable)
         .use(_ =>
           console
@@ -53,6 +74,7 @@ object Router extends zio.App {
         ConfigurationLive.layer ++
           (ConfigurationLive.layer >>> DatabaseLive.layer >>> BookHandlerLive.layer) ++
           (ConfigurationLive.layer >>> DatabaseLive.layer >>> ReadingHandlerLive.layer) ++
+          BookFinder.live ++
           ServerChannelFactory.auto ++
           EventLoopGroup.auto(nThreads = 1)
       )
