@@ -10,7 +10,7 @@ import zio.Chunk
 
 object CustomResponse {
 
-  def toContent(data: String): CompleteData =
+  private def toContent(data: String): CompleteData =
     HttpData.CompleteData(Chunk.fromArray(data.getBytes(HTTP_CHARSET)))
 
   def ok(data: String): UHttpResponse =
