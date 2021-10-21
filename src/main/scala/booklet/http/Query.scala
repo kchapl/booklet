@@ -4,6 +4,9 @@ import zhttp.http.Request
 
 object Query {
 
+  def param(request: Request)(name: String): Option[String] =
+    request.url.queryParams.get(name).flatMap(_.headOption)
+
   def fromRequest(request: Request): Map[String, String] =
     request.getBodyAsString.map(fromFormBody).getOrElse(Map.empty[String, String])
 
