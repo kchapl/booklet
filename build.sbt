@@ -32,7 +32,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "upickle-implicits" % upickleVersion,
   "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion,
   "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion,
-  "com.lihaoyi" %% "scalatags" % "0.9.4",
+  "com.lihaoyi" %% "scalatags" % "0.10.0",
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-free" % doobieVersion,
   "org.typelevel" %% "cats-core" % catsVersion,
