@@ -2,7 +2,7 @@ package booklet
 
 import booklet.http.CustomResponse.{badRequest, notFound, seeOther, serverFailure}
 import booklet.http.Query
-import booklet.services.book_finder.BookFinder
+import booklet.services.book_finder.{BookFinder, BookFinderLive}
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
 import booklet.services.configuration.{Configuration, ConfigurationLive}
 import booklet.services.database.DatabaseLive
@@ -74,7 +74,7 @@ object Router extends zio.App {
         ConfigurationLive.layer ++
           (ConfigurationLive.layer >>> DatabaseLive.layer >>> BookHandlerLive.layer) ++
           (ConfigurationLive.layer >>> DatabaseLive.layer >>> ReadingHandlerLive.layer) ++
-          BookFinder.live ++
+          BookFinderLive.layer ++
           ServerChannelFactory.auto ++
           EventLoopGroup.auto(nThreads = 1)
       )
