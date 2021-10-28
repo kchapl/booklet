@@ -27,6 +27,7 @@ libraryDependencies ++= Seq(
   "io.netty" % "netty-transport" % nettyVersion,
   "io.netty" % "netty-codec-http" % nettyVersion,
   "io.netty" % "netty-common" % nettyVersion,
+  "com.lihaoyi" %% "ujson" % upickleVersion,
   "com.lihaoyi" %% "upickle" % upickleVersion,
   "com.lihaoyi" %% "upickle-core" % upickleVersion,
   "com.lihaoyi" %% "upickle-implicits" % upickleVersion,
