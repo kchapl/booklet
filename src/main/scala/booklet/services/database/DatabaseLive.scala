@@ -1,8 +1,7 @@
 package booklet.services.database
 
-import booklet.Failure
 import booklet.model._
-import booklet.services.configuration.Configuration
+import booklet.{Config, Failure}
 import cats.effect.{ContextShift, IO}
 import doobie.implicits._
 import doobie.util.Get
@@ -36,10 +35,9 @@ object DatabaseLive {
       Reading(ReadingId(id), book, completed, Rating(rating))
     }
 
-  val layer: ZLayer[Has[Configuration], Failure, Has[Database]] = {
+  val layer: ZLayer[Has[Config], Failure, Has[Database]] = {
     val effect = for {
-      cfn <- ZIO.service[Configuration]
-      config <- cfn.get
+      config <- ZIO.service[Config]
     } yield {
       val xa = {
         val jdbc = JdbcConfig.fromDbUrl(config.db.url)

@@ -4,7 +4,6 @@ import booklet.http.CustomResponse.{badRequest, notFound, seeOther, serverFailur
 import booklet.http.Query
 import booklet.services.book_finder.{BookFinder, BookFinderLive}
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
-import booklet.services.configuration.{Configuration, ConfigurationLive}
 import booklet.services.database.DatabaseLive
 import booklet.services.reading_handler.{ReadingHandler, ReadingHandlerLive}
 import zhttp.http.Method.{DELETE, GET, PATCH, POST}
@@ -55,7 +54,7 @@ object Router extends zio.App {
     }
 
   private val program =
-    Configuration.get.toManaged_.flatMap { config =>
+    ZIO.service[Config].toManaged_.flatMap { config =>
       (Server.port(config.app.port) ++ Server.app(
         rootApp +++ bookApp +++ readingApp +++ bookFinderApp
       )).make
@@ -71,9 +70,9 @@ object Router extends zio.App {
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     program
       .provideCustomLayer(
-        ConfigurationLive.layer ++
-          (ConfigurationLive.layer >>> DatabaseLive.layer >>> BookHandlerLive.layer) ++
-          (ConfigurationLive.layer >>> DatabaseLive.layer >>> ReadingHandlerLive.layer) ++
+        Config.load.toLayer ++
+          (Config.load.toLayer >>> DatabaseLive.layer >>> BookHandlerLive.layer) ++
+          (Config.load.toLayer >>> DatabaseLive.layer >>> ReadingHandlerLive.layer) ++
           BookFinderLive.layer ++
           ServerChannelFactory.auto ++
           EventLoopGroup.auto(nThreads = 1)

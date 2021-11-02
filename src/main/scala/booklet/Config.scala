@@ -1,7 +1,7 @@
 package booklet
 
 import pureconfig.ConfigSource
-import pureconfig.error.ConfigReaderException
+import pureconfig.error.ConfigReaderFailures
 import pureconfig.generic.auto._
 import zio.{IO, ZIO}
 
@@ -12,12 +12,7 @@ case class Config(
 )
 
 object Config {
-  val load: IO[Failure, Config] = ZIO.fromEither(
-    ConfigSource.default
-      .load[Config]
-      .left
-      .map(failures => Failure.fromThrowable(ConfigReaderException(failures)))
-  )
+  val load: IO[ConfigReaderFailures, Config] = ZIO.fromEither(ConfigSource.default.load[Config])
 }
 
 case class AppConfig(
