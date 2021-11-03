@@ -47,7 +47,7 @@ object BookHandlerLiveSpec extends DefaultRunnableSpec {
         .toLayer
   }
 
-  //noinspection TypeAnnotation
+  // noinspection TypeAnnotation
   val spec =
     suite("BookHandlerLiveSpec")(
       suite("fetchAll")(
