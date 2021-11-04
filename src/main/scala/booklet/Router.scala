@@ -46,8 +46,8 @@ object Router extends zio.App {
             .fold(
               serverFailure,
               {
-                case None    => notFound(s"No book has ISBN $isbn")
-                case Some(a) => Response.text(a.toString)
+                case None       => notFound(s"No book has ISBN $isbn")
+                case Some(book) => Response.text(book.toString)
               }
             )
       }
