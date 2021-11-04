@@ -1,8 +1,8 @@
 package booklet.services.book_finder
 
 import booklet.model.{Author, BookData, Isbn, Title}
+import booklet.utility.OptionPickler._
 import cats.implicits._
-import upickle.legacy.{macroR, Reader}
 
 object Model {
 
@@ -22,12 +22,12 @@ object Model {
       title: String,
       subtitle: Option[String] = None,
       authors: Seq[String],
-      publisher: String,
+      publisher: Option[String] = None,
       publishedDate: String,
-      description: String,
+      description: Option[String] = None,
       industryIdentifiers: Seq[Identifier],
       categories: Seq[String],
-      imageLinks: ImageLinks
+      imageLinks: Option[ImageLinks] = None
   )
 
   object GoogleBook {
@@ -63,8 +63,8 @@ object Model {
           Some(Author(author)),
           Some(Title(info.title)),
           None,
-          thumbnail = Some(info.imageLinks.thumbnail),
-          smallThumbnail = Some(info.imageLinks.smallThumbnail)
+          thumbnail = info.imageLinks.map(_.thumbnail),
+          smallThumbnail = info.imageLinks.map(_.smallThumbnail)
         )
       else None
   }
