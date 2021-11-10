@@ -5,7 +5,7 @@ import booklet.http.Query
 import booklet.model.{ReadingData, ReadingId}
 import booklet.services.database.Database
 import booklet.views.ReadingView
-import zhttp.http.{Request, UResponse}
+import zhttp.http._
 import zio.{Has, UIO, URLayer, ZIO}
 
 object ReadingHandlerLive {
@@ -45,7 +45,7 @@ object ReadingHandlerLive {
             .fold(
               serverFailure,
               {
-                case None          => notFound(s"No such reading: $readingId")
+                case None          => notFound(Path(readingId))
                 case Some(reading) => ok(ReadingView.list(Seq(reading)).toString)
               }
             )

@@ -1,11 +1,13 @@
 package booklet
 
-import booklet.http.CustomResponse.{badRequest, notFound, seeOther, serverFailure}
+import booklet.http.CustomResponse.{badRequest, notFound, serverFailure}
 import booklet.http.Query
 import booklet.services.book_finder.{BookFinder, BookFinderLive}
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
 import booklet.services.database.DatabaseLive
 import booklet.services.reading_handler.{ReadingHandler, ReadingHandlerLive}
+import booklet.services.{StaticFile, StaticFileLive}
+import booklet.views.RootView
 import zhttp.http.Method.{DELETE, GET, PATCH, POST}
 import zhttp.http._
 import zhttp.service.server.ServerChannelFactory
@@ -15,8 +17,16 @@ import zio._
 object Router extends zio.App {
 
   private val rootApp = Http.collect[Request] { case GET -> Root =>
-    seeOther(path = "/books")
+    http.CustomResponse.ok(data = RootView.show.toString)
   }
+
+  private val staticApp: Http[Has[StaticFile], Throwable, Request, UResponse] =
+    Http.collectM[Request] { case GET -> Root / "javascript" / script =>
+      val y: RIO[Has[StaticFile], UResponse] = for {
+        x <- StaticFile.fetchContent(path = s"public/javascript/$script")
+      } yield http.CustomResponse.okJs(data = x)
+      y
+    }
 
   private val bookApp: Http[Has[BookHandler], Throwable, Request, UResponse] =
     Http.collectM[Request] {
@@ -46,7 +56,7 @@ object Router extends zio.App {
             .fold(
               serverFailure,
               {
-                case None       => notFound(s"No book has ISBN $isbn")
+                case None       => notFound(Path(isbn))
                 case Some(book) => Response.text(book.toString)
               }
             )
@@ -56,7 +66,7 @@ object Router extends zio.App {
   private val program =
     ZIO.service[Config].toManaged_.flatMap { config =>
       (Server.port(config.app.port) ++ Server.app(
-        rootApp +++ bookApp +++ readingApp +++ bookFinderApp
+        rootApp +++ staticApp +++ bookApp +++ readingApp +++ bookFinderApp
       )).make
         .mapError(Failure.fromThrowable)
         .use(_ =>
@@ -71,6 +81,7 @@ object Router extends zio.App {
     program
       .provideCustomLayer(
         Config.load.toLayer ++
+          StaticFileLive.layer ++
           (Config.load.toLayer >>> DatabaseLive.layer >>> BookHandlerLive.layer) ++
           (Config.load.toLayer >>> DatabaseLive.layer >>> ReadingHandlerLive.layer) ++
           BookFinderLive.layer ++
