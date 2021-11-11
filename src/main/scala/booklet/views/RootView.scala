@@ -12,7 +12,7 @@ object RootView {
       meta(name := "google-signin-scope", content := "profile email"),
       meta(
         name := "google-signin-client_id",
-        content := "909653409795-3vremt6u54fidtmhdrin6gooi8be9gf1.apps.googleusercontent.com"
+        content := "909653409795-6lsrim2ff07s3rgfjirii96bu2e6qbke.apps.googleusercontent.com"
       ),
       script(src := "https://apis.google.com/js/platform.js", defer)
     ),
