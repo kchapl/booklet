@@ -21,7 +21,7 @@ val nettyVersion = "4.1.70.Final"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
-  "dev.zio" %% "izumi-reflect" % "2.0.3",
+  "dev.zio" %% "izumi-reflect" % "2.0.4",
   "dev.zio" %% "zio-interop-cats" % "2.5.1.0",
   "io.d11" %% "zhttp" % "1.0.0.0-RC17",
   "io.netty" % "netty-transport" % nettyVersion,
