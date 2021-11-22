@@ -14,7 +14,7 @@ enablePlugins(JavaAppPackaging)
 
 val doobieVersion = "0.13.4"
 val zioVersion = "1.0.12"
-val pureConfigVersion = "0.17.0"
+val pureConfigVersion = "0.17.1"
 val upickleVersion = "1.4.2"
 val catsVersion = "2.6.1"
 val nettyVersion = "4.1.70.Final"
