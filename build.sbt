@@ -41,7 +41,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-kernel" % catsVersion,
   "org.typelevel" %% "cats-effect" % "2.5.1",
   "com.chuusai" %% "shapeless" % "2.3.7",
-  "com.squareup.okhttp3" % "okhttp" % "4.9.2",
+  "com.squareup.okhttp3" % "okhttp" % "4.9.3",
   "org.postgresql" % "postgresql" % "42.3.1" % Runtime,
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio-test" % zioVersion % Test,
