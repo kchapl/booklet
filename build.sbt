@@ -14,7 +14,7 @@ enablePlugins(JavaAppPackaging)
 
 val doobieVersion = "0.13.4"
 val zioVersion = "1.0.12"
-val pureConfigVersion = "0.17.0"
+val pureConfigVersion = "0.17.1"
 val upickleVersion = "1.4.2"
 val catsVersion = "2.6.1"
 val nettyVersion = "4.1.70.Final"
@@ -33,6 +33,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "upickle-implicits" % upickleVersion,
   "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion,
   "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion,
+  "com.github.pureconfig" %% "pureconfig-generic-base" % pureConfigVersion,
   "com.lihaoyi" %% "scalatags" % "0.10.0",
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-free" % doobieVersion,
