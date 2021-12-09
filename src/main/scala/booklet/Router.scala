@@ -16,12 +16,12 @@ import zio._
 
 object Router extends zio.App {
 
-  private val rootApp = Http.collect[Request] { case GET -> Root =>
+  private val rootApp = Http.collect[Request] { case GET -> !! =>
     http.CustomResponse.ok(data = RootView.show.toString)
   }
 
   private val staticApp: Http[Has[StaticFile], Throwable, Request, UResponse] =
-    Http.collectM[Request] { case GET -> Root / "javascript" / script =>
+    Http.collectM[Request] { case GET -> !! / "javascript" / script =>
       val y: RIO[Has[StaticFile], UResponse] = for {
         x <- StaticFile.fetchContent(path = s"public/javascript/$script")
       } yield http.CustomResponse.okJs(data = x)
@@ -30,24 +30,30 @@ object Router extends zio.App {
 
   private val bookApp: Http[Has[BookHandler], Throwable, Request, UResponse] =
     Http.collectM[Request] {
-      case GET -> Root / "books"                  => BookHandler.fetchAll
-      case GET -> Root / "books" / bookId         => BookHandler.fetch(bookId)
-      case req @ POST -> Root / "books"           => BookHandler.create(req)
-      case req @ PATCH -> Root / "books" / bookId => BookHandler.update(bookId)(req)
-      case DELETE -> Root / "books" / bookId      => BookHandler.delete(bookId)
+      case GET -> !! / "books"          => BookHandler.fetchAll
+      case GET -> !! / "books" / bookId => BookHandler.fetch(bookId)
+      case req @ POST -> !! / "books" =>
+        BookHandler.create(req).mapError(failure => new RuntimeException(failure.message))
+      case req @ PATCH -> !! / "books" / bookId =>
+        BookHandler.update(bookId)(req).mapError(failure => new RuntimeException(failure.message))
+      case DELETE -> !! / "books" / bookId => BookHandler.delete(bookId)
     }
 
   private val readingApp: Http[Has[ReadingHandler], Throwable, Request, UResponse] =
     Http.collectM[Request] {
-      case GET -> Root / "readings"                     => ReadingHandler.fetchAll
-      case GET -> Root / "readings" / readingId         => ReadingHandler.fetch(readingId)
-      case req @ POST -> Root / "readings"              => ReadingHandler.create(req)
-      case req @ PATCH -> Root / "readings" / readingId => ReadingHandler.update(readingId)(req)
-      case DELETE -> Root / "readings" / readingId      => ReadingHandler.delete(readingId)
+      case GET -> !! / "readings"             => ReadingHandler.fetchAll
+      case GET -> !! / "readings" / readingId => ReadingHandler.fetch(readingId)
+      case req @ POST -> !! / "readings" =>
+        ReadingHandler.create(req).mapError(failure => new RuntimeException(failure.message))
+      case req @ PATCH -> !! / "readings" / readingId =>
+        ReadingHandler
+          .update(readingId)(req)
+          .mapError(failure => new RuntimeException(failure.message))
+      case DELETE -> !! / "readings" / readingId => ReadingHandler.delete(readingId)
     }
 
   private val bookFinderApp: Http[Has[BookFinder], Throwable, Request, UResponse] =
-    Http.collectM[Request] { case req @ GET -> Root / "find" =>
+    Http.collectM[Request] { case req @ GET -> !! / "find" =>
       Query.param(req)(name = "isbn") match {
         case None => ZIO.succeed(badRequest("Missing ISBN"))
         case Some(isbn) =>
@@ -66,7 +72,7 @@ object Router extends zio.App {
   private val program =
     ZIO.service[Config].toManaged_.flatMap { config =>
       (Server.port(config.app.port) ++ Server.app(
-        rootApp +++ staticApp +++ bookApp +++ readingApp +++ bookFinderApp
+        rootApp ++ staticApp ++ bookApp ++ readingApp ++ bookFinderApp
       )).make
         .mapError(Failure.fromThrowable)
         .use(_ =>
