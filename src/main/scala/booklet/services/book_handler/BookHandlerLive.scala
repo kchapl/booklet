@@ -1,12 +1,13 @@
 package booklet.services.book_handler
 
+import booklet.Failure
 import booklet.http.CustomResponse._
 import booklet.http.Query
 import booklet.model.{BookData, BookId}
 import booklet.services.database.Database
 import booklet.views.BookView
 import zhttp.http._
-import zio.{Has, UIO, URIO, URLayer, ZIO}
+import zio.{Has, IO, UIO, URIO, URLayer, ZIO}
 
 object BookHandlerLive {
 
@@ -41,36 +42,40 @@ object BookHandlerLive {
                 )
           )
 
-      def create(request: Request): UIO[UResponse] = {
-        val requestQry = Query.fromRequest(request)
-        ZIO
-          .fromOption(BookData.completeFromHttpQuery(requestQry))
-          .foldM(
-            _ => ZIO.succeed(badRequest(requestQry.toString)),
-            bookData =>
-              db
-                .insertBook(bookData)
-                .fold(
-                  serverFailure,
-                  _ => seeOther(path = "/books")
-                )
+      def create(request: Request): IO[Failure, UResponse] =
+        Query
+          .fromRequest(request)
+          .flatMap(requestQry =>
+            ZIO
+              .fromOption(BookData.completeFromHttpQuery(requestQry))
+              .foldM(
+                _ => ZIO.succeed(badRequest(requestQry.toString)),
+                bookData =>
+                  db
+                    .insertBook(bookData)
+                    .fold(
+                      serverFailure,
+                      _ => seeOther(path = "/books")
+                    )
+              )
           )
-      }
 
-      def update(bookId: String)(request: Request): UIO[UResponse] = {
-        val requestQry = Query.fromRequest(request)
-        toBookId(bookId)
-          .foldM(
-            _ => ZIO.succeed(badRequest(requestQry.toString)),
-            id =>
-              db
-                .updateBook(id, BookData.partialFromHttpQuery(requestQry))
-                .fold(
-                  serverFailure,
-                  _ => seeOther("/books")
-                )
+      def update(bookId: String)(request: Request): IO[Failure, UResponse] =
+        Query
+          .fromRequest(request)
+          .flatMap(requestQry =>
+            toBookId(bookId)
+              .foldM(
+                _ => ZIO.succeed(badRequest(requestQry.toString)),
+                id =>
+                  db
+                    .updateBook(id, BookData.partialFromHttpQuery(requestQry))
+                    .fold(
+                      serverFailure,
+                      _ => seeOther("/books")
+                    )
+              )
           )
-      }
 
       def delete(bookId: String): UIO[UResponse] =
         toBookId(bookId)
