@@ -4,20 +4,18 @@ import booklet.Failure
 import io.netty.handler.codec.http.HttpHeaderNames.{CONTENT_TYPE, LOCATION}
 import io.netty.handler.codec.http.HttpHeaderValues.TEXT_HTML
 import io.netty.util.AsciiString
-import zhttp.http.HttpData.CompleteData
 import zhttp.http.Status.SEE_OTHER
 import zhttp.http._
-import zio.Chunk
 
 object CustomResponse {
 
-  private def toContent(data: String): CompleteData =
-    HttpData.CompleteData(Chunk.fromArray(data.getBytes(HTTP_CHARSET)))
+  private def toData(text: String): HttpData[Any, Nothing] =
+    HttpData.fromText(text, HTTP_CHARSET)
 
   private def ok(data: String, contentType: AsciiString): UResponse =
-    Response.http(
+    Response(
       headers = List(Header(CONTENT_TYPE, contentType)),
-      content = toContent(data)
+      data = toData(data)
     )
 
   def ok(data: String): UResponse =
@@ -27,7 +25,7 @@ object CustomResponse {
     ok(data, AsciiString.cached("text/javascript"))
 
   def seeOther(path: String): UResponse =
-    Response.http(
+    Response(
       status = SEE_OTHER,
       headers = List(Header(LOCATION, path))
     )
