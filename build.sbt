@@ -17,7 +17,7 @@ val zioVersion = "1.0.12"
 val pureConfigVersion = "0.17.1"
 val upickleVersion = "1.4.3"
 val catsVersion = "2.7.0"
-val nettyVersion = "4.1.71.Final"
+val nettyVersion = "4.1.72.Final"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
