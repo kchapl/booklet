@@ -13,7 +13,7 @@ semanticdbVersion := scalafixSemanticdb.revision
 enablePlugins(JavaAppPackaging)
 
 val doobieVersion = "0.13.4"
-val zioVersion = "1.0.12"
+val zioVersion = "1.0.13"
 val pureConfigVersion = "0.17.1"
 val upickleVersion = "1.4.3"
 val catsVersion = "2.7.0"
