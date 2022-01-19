@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
   "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion,
   "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion,
   "com.github.pureconfig" %% "pureconfig-generic-base" % pureConfigVersion,
-  "com.lihaoyi" %% "scalatags" % "0.11.0",
+  "com.lihaoyi" %% "scalatags" % "0.11.1",
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-free" % doobieVersion,
   "org.typelevel" %% "cats-core" % catsVersion,
