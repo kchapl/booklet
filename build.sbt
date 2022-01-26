@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "izumi-reflect" % "2.0.8",
   "dev.zio" %% "zio-interop-cats" % "2.5.1.0",
-  "io.d11" %% "zhttp" % "1.0.0.0-RC18",
+  "io.d11" %% "zhttp" % "1.0.0.0-RC23",
   "io.netty" % "netty-transport" % nettyVersion,
   "io.netty" % "netty-codec-http" % nettyVersion,
   "io.netty" % "netty-common" % nettyVersion,
