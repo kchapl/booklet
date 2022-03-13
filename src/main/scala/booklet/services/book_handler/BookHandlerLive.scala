@@ -19,14 +19,14 @@ object BookHandlerLive {
   private def fromDatabase(db: Database) =
     new BookHandler {
 
-      def fetchAll: UIO[UResponse] =
+      def fetchAll: UIO[Response] =
         db.fetchAllBooks
           .fold(
             serverFailure,
             books => ok(BookView.list(books).toString)
           )
 
-      def fetch(bookId: String): UIO[UResponse] =
+      def fetch(bookId: String): UIO[Response] =
         toBookId(bookId)
           .foldM(
             _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
@@ -42,7 +42,7 @@ object BookHandlerLive {
                 )
           )
 
-      def create(request: Request): IO[Failure, UResponse] =
+      def create(request: Request): IO[Failure, Response] =
         Query
           .fromRequest(request)
           .flatMap(requestQry =>
@@ -60,7 +60,7 @@ object BookHandlerLive {
               )
           )
 
-      def update(bookId: String)(request: Request): IO[Failure, UResponse] =
+      def update(bookId: String)(request: Request): IO[Failure, Response] =
         Query
           .fromRequest(request)
           .flatMap(requestQry =>
@@ -77,7 +77,7 @@ object BookHandlerLive {
               )
           )
 
-      def delete(bookId: String): UIO[UResponse] =
+      def delete(bookId: String): UIO[Response] =
         toBookId(bookId)
           .foldM(
             _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),

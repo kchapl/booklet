@@ -5,7 +5,9 @@ import booklet.model._
 import zio._
 
 trait Database {
+
   val fetchAllBooks: IO[Failure, List[Book]]
+
   val fetchAllReadings: IO[Failure, List[Reading]]
 
   def fetchBook(id: BookId): IO[Failure, Option[Book]]

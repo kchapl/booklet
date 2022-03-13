@@ -9,33 +9,33 @@ import zhttp.http._
 
 object CustomResponse {
 
-  private def toData(text: String): HttpData[Any, Nothing] =
-    HttpData.fromText(text, HTTP_CHARSET)
+  private def toData(text: String): HttpData =
+    HttpData.fromString(text, HTTP_CHARSET)
 
-  private def ok(data: String, contentType: AsciiString): UResponse =
+  private def ok(data: String, contentType: AsciiString): Response =
     Response(
-      headers = List(Header(CONTENT_TYPE, contentType)),
+      headers = Headers(CONTENT_TYPE -> contentType),
       data = toData(data)
     )
 
-  def ok(data: String): UResponse =
+  def ok(data: String): Response =
     ok(data, TEXT_HTML)
 
-  def okJs(data: String): UResponse =
+  def okJs(data: String): Response =
     ok(data, AsciiString.cached("text/javascript"))
 
-  def seeOther(path: String): UResponse =
+  def seeOther(path: String): Response =
     Response(
       status = SEE_OTHER,
-      headers = List(Header(LOCATION, path))
+      headers = Headers(LOCATION -> path)
     )
 
-  def badRequest(message: String): UResponse =
+  def badRequest(message: String): Response =
     Response.fromHttpError(HttpError.BadRequest(message))
 
-  def notFound(path: Path): UResponse =
+  def notFound(path: Path): Response =
     Response.fromHttpError(HttpError.NotFound(path))
 
-  def serverFailure(failure: Failure): UResponse =
+  def serverFailure(failure: Failure): Response =
     Response.fromHttpError(HttpError.InternalServerError(failure.message, failure.cause))
 }
