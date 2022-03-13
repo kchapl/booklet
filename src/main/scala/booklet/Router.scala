@@ -20,16 +20,15 @@ object Router extends zio.App {
     http.CustomResponse.ok(data = RootView.show.toString)
   }
 
-  private val staticApp: Http[Has[StaticFile], Throwable, Request, UResponse] =
-    Http.collectM[Request] { case GET -> !! / "javascript" / script =>
-      val y: RIO[Has[StaticFile], UResponse] = for {
-        x <- StaticFile.fetchContent(path = s"public/javascript/$script")
-      } yield http.CustomResponse.okJs(data = x)
-      y
+  private val staticApp: Http[Has[StaticFile], Throwable, Request, Response] =
+    Http.collectZIO[Request] { case GET -> !! / "javascript" / script =>
+      for {
+        content <- StaticFile.fetchContent(path = s"public/javascript/$script")
+      } yield http.CustomResponse.okJs(data = content)
     }
 
-  private val bookApp: Http[Has[BookHandler], Throwable, Request, UResponse] =
-    Http.collectM[Request] {
+  private val bookApp: Http[Has[BookHandler], Throwable, Request, Response] =
+    Http.collectZIO[Request] {
       case GET -> !! / "books"          => BookHandler.fetchAll
       case GET -> !! / "books" / bookId => BookHandler.fetch(bookId)
       case req @ POST -> !! / "books" =>
@@ -39,8 +38,8 @@ object Router extends zio.App {
       case DELETE -> !! / "books" / bookId => BookHandler.delete(bookId)
     }
 
-  private val readingApp: Http[Has[ReadingHandler], Throwable, Request, UResponse] =
-    Http.collectM[Request] {
+  private val readingApp: Http[Has[ReadingHandler], Throwable, Request, Response] =
+    Http.collectZIO[Request] {
       case GET -> !! / "readings"             => ReadingHandler.fetchAll
       case GET -> !! / "readings" / readingId => ReadingHandler.fetch(readingId)
       case req @ POST -> !! / "readings" =>
@@ -52,8 +51,8 @@ object Router extends zio.App {
       case DELETE -> !! / "readings" / readingId => ReadingHandler.delete(readingId)
     }
 
-  private val bookFinderApp: Http[Has[BookFinder], Throwable, Request, UResponse] =
-    Http.collectM[Request] { case req @ GET -> !! / "find" =>
+  private val bookFinderApp: Http[Has[BookFinder], Throwable, Request, Response] =
+    Http.collectZIO[Request] { case req @ GET -> !! / "find" =>
       Query.param(req)(name = "isbn") match {
         case None => ZIO.succeed(badRequest("Missing ISBN"))
         case Some(isbn) =>
