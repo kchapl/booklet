@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  CI:
+  Scala:
     runs-on: ubuntu-latest
     steps:
 
