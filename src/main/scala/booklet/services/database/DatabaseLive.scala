@@ -186,7 +186,9 @@ object DatabaseLive {
 
   private def toDatabase(xa: Transactor[Task]): Database =
     new Database {
+
       val fetchAllBooks: ZIO[Any, Failure, List[Book]] = fetchAllBooksImpl(xa)
+
       val fetchAllReadings: ZIO[Any, Failure, List[Reading]] = fetchAllReadingsImpl(xa)
 
       def fetchBook(id: BookId): ZIO[Any, Failure, Option[Book]] = fetchBookImpl(xa, id)

@@ -15,15 +15,15 @@ enablePlugins(JavaAppPackaging)
 val doobieVersion = "0.13.4"
 val zioVersion = "1.0.13"
 val pureConfigVersion = "0.17.1"
-val upickleVersion = "1.4.4"
+val upickleVersion = "1.5.0"
 val catsVersion = "2.7.0"
-val nettyVersion = "4.1.74.Final"
+val nettyVersion = "4.1.75.Final"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "izumi-reflect" % "2.0.8",
-  "dev.zio" %% "zio-interop-cats" % "3.2.9.1",
-  "io.d11" %% "zhttp" % "1.0.0.0-RC18",
+  "dev.zio" %% "zio-interop-cats" % "2.5.1.0",
+  "io.d11" %% "zhttp" % "1.0.0.0-RC25",
   "io.netty" % "netty-transport" % nettyVersion,
   "io.netty" % "netty-codec-http" % nettyVersion,
   "io.netty" % "netty-common" % nettyVersion,
@@ -41,9 +41,9 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-free" % catsVersion,
   "org.typelevel" %% "cats-kernel" % catsVersion,
   "org.typelevel" %% "cats-effect" % "2.5.1",
-  "com.chuusai" %% "shapeless" % "2.3.7",
+  "com.chuusai" %% "shapeless" % "2.3.8",
   "com.squareup.okhttp3" % "okhttp" % "4.9.3",
-  "org.postgresql" % "postgresql" % "42.3.2" % Runtime,
+  "org.postgresql" % "postgresql" % "42.3.3" % Runtime,
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test

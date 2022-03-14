@@ -16,16 +16,16 @@ object ReadingHandlerLive {
 
   private def toReadingHandler(db: Database): ReadingHandler =
     new ReadingHandler {
-      val fetchAll: UIO[UResponse] = fetchAllFrom(db)
+      override val fetchAll: UIO[Response] = fetchAllFrom(db)
 
-      def fetch(readingId: String): UIO[UResponse] = fetchFrom(db)(readingId)
+      override def fetch(readingId: String): UIO[Response] = fetchFrom(db)(readingId)
 
-      def create(request: Request): IO[Failure, UResponse] = createFrom(db)(request)
+      override def create(request: Request): IO[Failure, Response] = createFrom(db)(request)
 
-      def update(readingId: String)(request: Request): IO[Failure, UResponse] =
+      override def update(readingId: String)(request: Request): IO[Failure, Response] =
         updateFrom(db)(readingId)(request)
 
-      def delete(readingId: String): UIO[UResponse] = deleteFrom(db)(readingId)
+      override def delete(readingId: String): UIO[Response] = deleteFrom(db)(readingId)
     }
 
   private def toReadingId(readingId: String): ZIO[Any, Option[Nothing], ReadingId] =
