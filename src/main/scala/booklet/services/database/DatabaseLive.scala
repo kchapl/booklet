@@ -2,7 +2,6 @@ package booklet.services.database
 
 import booklet.model._
 import booklet.{Config, Failure}
-import cats.effect.{ContextShift, IO}
 import doobie.implicits._
 import doobie.util.Get
 import doobie.util.fragment.Fragment
@@ -10,11 +9,11 @@ import doobie.util.fragments.setOpt
 import doobie.{Put, Read, Transactor}
 import zio._
 import zio.interop.catz._
+import zio.interop.catz.implicits.rts
 
 import java.sql
 import java.time.LocalDate
 import java.util.Date
-import scala.concurrent.ExecutionContext
 
 object DatabaseLive {
 
@@ -69,8 +68,6 @@ object DatabaseLive {
         fr"FROM readings" ++
         fr"WHERE id = $id"
   }
-
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   implicit val dateGet: Get[LocalDate] =
     Get[Date].map(date => new sql.Date(date.getTime).toLocalDate)
