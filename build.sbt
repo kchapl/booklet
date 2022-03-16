@@ -2,8 +2,8 @@ import sbt.Keys.semanticdbEnabled
 
 name := "booklet"
 
-scalaVersion := "2.13.8"
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
+scalaVersion := "3.1.1"
+scalacOptions ++= Seq("-Werror")
 
 // required by Scalafix
 semanticdbEnabled := true
@@ -32,8 +32,6 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "upickle-core" % upickleVersion,
   "com.lihaoyi" %% "upickle-implicits" % upickleVersion,
   "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion,
-  "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion,
-  "com.github.pureconfig" %% "pureconfig-generic-base" % pureConfigVersion,
   "com.lihaoyi" %% "scalatags" % "0.11.1",
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-free" % doobieVersion,
@@ -41,7 +39,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-free" % catsVersion,
   "org.typelevel" %% "cats-kernel" % catsVersion,
   "org.typelevel" %% "cats-effect-kernel" % "3.3.7",
-  "com.chuusai" %% "shapeless" % "2.3.8",
+//  "com.chuusai" %% "shapeless" % "2.3.8",
   "com.squareup.okhttp3" % "okhttp" % "4.9.3",
   "org.postgresql" % "postgresql" % "42.3.3" % Runtime,
   "org.scalameta" %% "munit" % "0.7.29" % Test,
