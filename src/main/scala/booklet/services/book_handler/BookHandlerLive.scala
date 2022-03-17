@@ -7,7 +7,7 @@ import booklet.model.{BookData, BookId}
 import booklet.services.database.Database
 import booklet.views.BookView
 import zhttp.http._
-import zio.{Has, IO, UIO, URIO, URLayer, ZIO}
+import zio._
 
 object BookHandlerLive {
 
@@ -25,7 +25,7 @@ object BookHandlerLive {
 
   private def fetchImpl(db: Database, bookId: String): UIO[Response] =
     toBookId(bookId)
-      .foldM(
+      .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
         id =>
           db
@@ -45,7 +45,7 @@ object BookHandlerLive {
       .flatMap(requestQry =>
         ZIO
           .fromOption(BookData.completeFromHttpQuery(requestQry))
-          .foldM(
+          .foldZIO(
             _ => ZIO.succeed(badRequest(requestQry.toString)),
             bookData =>
               db
@@ -62,7 +62,7 @@ object BookHandlerLive {
       .fromRequest(request)
       .flatMap(requestQry =>
         toBookId(bookId)
-          .foldM(
+          .foldZIO(
             _ => ZIO.succeed(badRequest(requestQry.toString)),
             id =>
               db
@@ -76,7 +76,7 @@ object BookHandlerLive {
 
   private def deleteImpl(db: Database, bookId: String): UIO[Response] =
     toBookId(bookId)
-      .foldM(
+      .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
         id =>
           db
@@ -101,8 +101,8 @@ object BookHandlerLive {
       override def delete(bookId: String): UIO[Response] = deleteImpl(db, bookId)
     }
 
-  private val effect: URIO[Has[Database], BookHandler] =
+  private val effect: URIO[Database, BookHandler] =
     ZIO.service[Database].map(fromDatabase)
 
-  val layer: URLayer[Has[Database], Has[BookHandler]] = effect.toLayer
+  val layer: URLayer[Database, BookHandler] = effect.toLayer
 }

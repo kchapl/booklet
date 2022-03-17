@@ -13,7 +13,7 @@ semanticdbVersion := scalafixSemanticdb.revision
 enablePlugins(JavaAppPackaging)
 
 val doobieVersion = "1.0.0-RC2"
-val zioVersion = "1.0.13"
+val zioVersion = "2.0.0-RC2"
 val pureConfigVersion = "0.17.1"
 val upickleVersion = "1.5.0"
 val catsVersion = "2.7.0"
@@ -22,8 +22,8 @@ val nettyVersion = "4.1.75.Final"
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "izumi-reflect" % "2.0.8",
-  "dev.zio" %% "zio-interop-cats" % "3.2.9.1",
-  "io.d11" %% "zhttp" % "1.0.0.0-RC25",
+  "dev.zio" %% "zio-interop-cats" % "3.3.0-RC2",
+  "io.d11" %% "zhttp" % "2.0.0-RC4",
   "io.netty" % "netty-transport" % nettyVersion,
   "io.netty" % "netty-codec-http" % nettyVersion,
   "io.netty" % "netty-common" % nettyVersion,
@@ -46,7 +46,8 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.3.3" % Runtime,
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio-test" % zioVersion % Test,
-  "dev.zio" %% "zio-test-sbt" % zioVersion % Test
+  "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
+  "dev.zio" %% "zio-mock" % "1.0.0-RC2-2" % Test
 )
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")

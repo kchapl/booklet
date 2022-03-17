@@ -2,30 +2,32 @@ package booklet.services.book_handler
 
 import booklet.Failure
 import zhttp.http.{Request, Response}
-import zio.{Has, IO, RIO, UIO, ZIO}
+import zio.{IO, ZIO}
 
 trait BookHandler {
-  def fetchAll: UIO[Response]
+  def fetchAll: IO[Failure, Response]
 
-  def fetch(bookId: String): UIO[Response]
+  def fetch(bookId: String): IO[Failure, Response]
 
   def create(request: Request): IO[Failure, Response]
 
   def update(bookId: String)(request: Request): IO[Failure, Response]
 
-  def delete(bookId: String): UIO[Response]
+  def delete(bookId: String): IO[Failure, Response]
 }
 
 object BookHandler {
-  val fetchAll: RIO[Has[BookHandler], Response] = RIO.serviceWith(_.fetchAll)
+  val fetchAll: ZIO[BookHandler, Failure, Response] = ZIO.serviceWithZIO(_.fetchAll)
 
-  def fetch(bookId: String): RIO[Has[BookHandler], Response] = RIO.serviceWith(_.fetch(bookId))
+  def fetch(bookId: String): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.fetch(bookId))
 
-  def create(request: Request): ZIO[Has[BookHandler], Failure, Response] =
-    ZIO.serviceWith(_.create(request))
+  def create(request: Request): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.create(request))
 
-  def update(bookId: String)(request: Request): ZIO[Has[BookHandler], Failure, Response] =
-    ZIO.serviceWith(_.update(bookId)(request))
+  def update(bookId: String)(request: Request): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.update(bookId)(request))
 
-  def delete(bookId: String): RIO[Has[BookHandler], Response] = RIO.serviceWith(_.delete(bookId))
+  def delete(bookId: String): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.delete(bookId))
 }

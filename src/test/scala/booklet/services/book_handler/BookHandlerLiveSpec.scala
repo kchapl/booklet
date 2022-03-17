@@ -4,22 +4,22 @@ import booklet.http.CustomResponse
 import booklet.model._
 import booklet.services.database.Database
 import booklet.views.BookView
+import zio._
+import zio.mock.Expectation._
+import zio.mock._
 import zio.test.Assertion._
-import zio.test.mock.Expectation._
-import zio.test.mock._
-import zio.test.{assertM, DefaultRunnableSpec}
-import zio.{Has, IO, URLayer, ZIO}
+import zio.test._
 
 object BookHandlerLiveSpec extends DefaultRunnableSpec {
 
-  object MockDatabase extends Mock[Has[Database]] {
+  object MockDatabase extends Mock[Database] {
 
     object FetchAllBooks extends Effect[Unit, booklet.Failure, List[Book]]
 
     def fail[A](): IO[booklet.Failure, A] =
       IO.fail(booklet.Failure(message = "Unexpected", cause = None))
 
-    val compose: URLayer[Has[Proxy], Has[Database]] =
+    val compose: URLayer[Proxy, Database] =
       ZIO
         .service[Proxy]
         .map { proxy =>
@@ -51,7 +51,7 @@ object BookHandlerLiveSpec extends DefaultRunnableSpec {
   val spec =
     suite("BookHandlerLiveSpec")(
       suite("fetchAll")(
-        testM("succeeds with a list of books") {
+        test("succeeds with a list of books") {
 
           val books = List(
             Book(
@@ -67,18 +67,16 @@ object BookHandlerLiveSpec extends DefaultRunnableSpec {
           val mockEnv = MockDatabase.FetchAllBooks(value(books))
 
           val app = BookHandler.fetchAll
-          val env = mockEnv >>> BookHandlerLive.layer
-          val out = app.provideCustomLayer(env)
+          val out = app.provide(mockEnv, BookHandlerLive.layer)
           assertM(out)(equalTo(CustomResponse.ok(BookView.list(books).toString)))
         },
-        testM("succeeds with an empty list of books") {
+        test("succeeds with an empty list of books") {
 
           val books = Nil
           val mockEnv = MockDatabase.FetchAllBooks(value(books))
 
           val app = BookHandler.fetchAll
-          val env = mockEnv >>> BookHandlerLive.layer
-          val out = app.provideCustomLayer(env)
+          val out = app.provide(mockEnv, BookHandlerLive.layer)
           assertM(out)(equalTo(CustomResponse.ok(BookView.list(books).toString)))
         }
       )

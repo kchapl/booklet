@@ -14,44 +14,42 @@ import zhttp.service.server.ServerChannelFactory
 import zhttp.service.{EventLoopGroup, Server}
 import zio._
 
-object Router extends zio.App {
+object Router extends ZIOAppDefault {
 
   private val rootApp = Http.collect[Request] { case GET -> !! =>
     http.CustomResponse.ok(data = RootView.show.toString)
   }
 
-  private val staticApp: Http[Has[StaticFile], Throwable, Request, Response] =
+  private val staticApp: Http[StaticFile, Throwable, Request, Response] =
     Http.collectZIO[Request] { case GET -> !! / "javascript" / script =>
       for {
         content <- StaticFile.fetchContent(path = s"public/javascript/$script")
       } yield http.CustomResponse.okJs(data = content)
     }
 
-  private val bookApp: Http[Has[BookHandler], Throwable, Request, Response] =
-    Http.collectZIO[Request] {
-      case GET -> !! / "books"          => BookHandler.fetchAll
-      case GET -> !! / "books" / bookId => BookHandler.fetch(bookId)
-      case req @ POST -> !! / "books" =>
-        BookHandler.create(req).mapError(failure => new RuntimeException(failure.message))
-      case req @ PATCH -> !! / "books" / bookId =>
-        BookHandler.update(bookId)(req).mapError(failure => new RuntimeException(failure.message))
-      case DELETE -> !! / "books" / bookId => BookHandler.delete(bookId)
-    }
+  private val bookApp: Http[BookHandler, Throwable, Request, Response] =
+    Http
+      .collectZIO[Request] {
+        case GET -> !! / "books"                  => BookHandler.fetchAll
+        case GET -> !! / "books" / bookId         => BookHandler.fetch(bookId)
+        case req @ POST -> !! / "books"           => BookHandler.create(req)
+        case req @ PATCH -> !! / "books" / bookId => BookHandler.update(bookId)(req)
+        case DELETE -> !! / "books" / bookId      => BookHandler.delete(bookId)
+      }
+      .mapError(failure => new RuntimeException(failure.message))
 
-  private val readingApp: Http[Has[ReadingHandler], Throwable, Request, Response] =
-    Http.collectZIO[Request] {
-      case GET -> !! / "readings"             => ReadingHandler.fetchAll
-      case GET -> !! / "readings" / readingId => ReadingHandler.fetch(readingId)
-      case req @ POST -> !! / "readings" =>
-        ReadingHandler.create(req).mapError(failure => new RuntimeException(failure.message))
-      case req @ PATCH -> !! / "readings" / readingId =>
-        ReadingHandler
-          .update(readingId)(req)
-          .mapError(failure => new RuntimeException(failure.message))
-      case DELETE -> !! / "readings" / readingId => ReadingHandler.delete(readingId)
-    }
+  private val readingApp: Http[ReadingHandler, Throwable, Request, Response] =
+    Http
+      .collectZIO[Request] {
+        case GET -> !! / "readings"                     => ReadingHandler.fetchAll
+        case GET -> !! / "readings" / readingId         => ReadingHandler.fetch(readingId)
+        case req @ POST -> !! / "readings"              => ReadingHandler.create(req)
+        case req @ PATCH -> !! / "readings" / readingId => ReadingHandler.update(readingId)(req)
+        case DELETE -> !! / "readings" / readingId      => ReadingHandler.delete(readingId)
+      }
+      .mapError(failure => new RuntimeException(failure.message))
 
-  private val bookFinderApp: Http[Has[BookFinder], Throwable, Request, Response] =
+  private val bookFinderApp: Http[BookFinder, Throwable, Request, Response] =
     Http.collectZIO[Request] { case req @ GET -> !! / "find" =>
       Query.param(req)(name = "isbn") match {
         case None => ZIO.succeed(badRequest("Missing ISBN"))
@@ -69,20 +67,20 @@ object Router extends zio.App {
     }
 
   private val program =
-    ZIO.service[Config].toManaged_.flatMap { config =>
+    ZIO.service[Config].toManaged.flatMap { config =>
       (Server.port(config.app.port) ++ Server.app(
         rootApp ++ staticApp ++ bookApp ++ readingApp ++ bookFinderApp
       )).make
         .mapError(Failure.fromThrowable)
         .use(_ =>
-          console
-            .putStrLn(s"Server started on port ${config.app.port}")
+          Console
+            .printLine(s"Server started on port ${config.app.port}")
             .mapError(Failure.fromThrowable) *> ZIO.never
         )
-        .toManaged_
+        .toManaged
     }
 
-  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
+  override def run: ZIO[ZEnv with ZIOAppArgs, Any, Any] =
     program
       .provideCustomLayer(
         Config.load.toLayer ++

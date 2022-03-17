@@ -1,6 +1,6 @@
 package booklet.services
 
-import zio.{Has, RIO, Task, TaskLayer}
+import zio._
 
 import scala.io.Source
 
@@ -9,16 +9,16 @@ trait StaticFile {
 }
 
 object StaticFile {
-  def fetchContent(path: String): RIO[Has[StaticFile], String] =
-    RIO.serviceWith(_.fetchContent(path))
+  def fetchContent(path: String): RIO[StaticFile, String] =
+    RIO.serviceWithZIO(_.fetchContent(path))
 }
 
 object StaticFileLive {
   private val effect: Task[StaticFile] =
-    Task.effect(path =>
-      Task.bracket(Task.effect(Source.fromResource(path)))(x => Task.succeed(x.close()))(x =>
-        Task.succeed(x.getLines().toList.mkString("\n"))
-      )
+    Task.attempt(path =>
+      Task.acquireReleaseWith(Task.attempt(Source.fromResource(path)))(src =>
+        Task.succeed(src.close())
+      )(src => Task.succeed(src.getLines().toList.mkString("\n")))
     )
-  val layer: TaskLayer[Has[StaticFile]] = effect.toLayer
+  val layer: TaskLayer[StaticFile] = effect.toLayer
 }

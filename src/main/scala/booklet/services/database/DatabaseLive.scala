@@ -223,5 +223,5 @@ object DatabaseLive {
     toDatabase(xa)
   }
 
-  val layer: ZLayer[Has[Config], Failure, Has[Database]] = effect.toLayer
+  val layer: ZLayer[Config, Failure, Database] = effect.toLayer
 }

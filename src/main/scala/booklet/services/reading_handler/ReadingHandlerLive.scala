@@ -7,11 +7,11 @@ import booklet.model.{ReadingData, ReadingId}
 import booklet.services.database.Database
 import booklet.views.ReadingView
 import zhttp.http._
-import zio.{Has, IO, UIO, URLayer, ZIO}
+import zio._
 
 object ReadingHandlerLive {
 
-  val layer: URLayer[Has[Database], Has[ReadingHandler]] =
+  val layer: URLayer[Database, ReadingHandler] =
     ZIO.service[Database].map(toReadingHandler).toLayer
 
   private def toReadingHandler(db: Database): ReadingHandler =
@@ -42,7 +42,7 @@ object ReadingHandlerLive {
 
   private def fetchFrom(db: Database)(readingId: String) =
     toReadingId(readingId)
-      .foldM(
+      .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $readingId")),
         id =>
           db
@@ -62,7 +62,7 @@ object ReadingHandlerLive {
       .flatMap(requestQry =>
         ZIO
           .fromOption(ReadingData.completeFromHttpQuery(requestQry))
-          .foldM(
+          .foldZIO(
             _ => ZIO.succeed(badRequest(requestQry.toString)),
             readingData =>
               db
@@ -79,7 +79,7 @@ object ReadingHandlerLive {
       .fromRequest(request)
       .flatMap(requestQry =>
         toReadingId(readingId)
-          .foldM(
+          .foldZIO(
             _ => ZIO.succeed(badRequest(requestQry.toString)),
             id =>
               db
@@ -93,7 +93,7 @@ object ReadingHandlerLive {
 
   private def deleteFrom(db: Database)(readingId: String) =
     toReadingId(readingId)
-      .foldM(
+      .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $readingId")),
         id =>
           db
