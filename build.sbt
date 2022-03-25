@@ -48,7 +48,7 @@ libraryDependencies ++= Seq(
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-  "dev.zio" %% "zio-mock" % "1.0.0-RC2-2" % Test
+  "dev.zio" %% "zio-mock" % "1.0.0-RC3" % Test
 )
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
