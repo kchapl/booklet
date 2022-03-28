@@ -10,8 +10,7 @@ import booklet.services.{StaticFile, StaticFileLive}
 import booklet.views.RootView
 import zhttp.http.Method.{DELETE, GET, PATCH, POST}
 import zhttp.http._
-import zhttp.service.server.ServerChannelFactory
-import zhttp.service.{EventLoopGroup, Server}
+import zhttp.service.Server
 import zio._
 
 object Router extends ZIOAppDefault {
@@ -66,31 +65,21 @@ object Router extends ZIOAppDefault {
       }
     }
 
-  private val program =
-    ZIO.service[Config].toManaged.flatMap { config =>
-      (Server.port(config.app.port) ++ Server.app(
-        rootApp ++ staticApp ++ bookApp ++ readingApp ++ bookFinderApp
-      )).make
-        .mapError(Failure.fromThrowable)
-        .use(_ =>
-          Console
-            .printLine(s"Server started on port ${config.app.port}")
-            .mapError(Failure.fromThrowable) *> ZIO.never
+  override def run: ZIO[ZEnv with ZIOAppArgs, Any, Any] = {
+    val loadedConfig = Config.load
+    for {
+      config <- loadedConfig
+      _ <- Server
+        .start(config.app.port, rootApp ++ staticApp ++ bookApp ++ readingApp ++ bookFinderApp)
+        .provide(
+          StaticFileLive.layer,
+          BookHandlerLive.layer,
+          ReadingHandlerLive.layer,
+          BookFinderLive.layer,
+          DatabaseLive.layer,
+          loadedConfig.toLayer
         )
-        .toManaged
-    }
-
-  override def run: ZIO[ZEnv with ZIOAppArgs, Any, Any] =
-    program
-      .provideCustomLayer(
-        Config.load.toLayer ++
-          StaticFileLive.layer ++
-          (Config.load.toLayer >>> DatabaseLive.layer >>> BookHandlerLive.layer) ++
-          (Config.load.toLayer >>> DatabaseLive.layer >>> ReadingHandlerLive.layer) ++
-          BookFinderLive.layer ++
-          ServerChannelFactory.auto ++
-          EventLoopGroup.auto(nThreads = 1)
-      )
-      .useForever
-      .exitCode
+        .exitCode
+    } yield ()
+  }
 }

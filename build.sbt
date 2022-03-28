@@ -3,7 +3,7 @@ import sbt.Keys.semanticdbEnabled
 name := "booklet"
 
 scalaVersion := "2.13.8"
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror", "-Ylog-classpath")
 
 // required by Scalafix
 semanticdbEnabled := true
@@ -25,7 +25,6 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "izumi-reflect" % "2.0.8",
   "dev.zio" %% "zio-interop-cats" % "3.3.0-RC2",
   "io.d11" %% "zhttp" % "2.0.0-RC4",
-  "io.netty" % "netty-transport" % nettyVersion,
   "io.netty" % "netty-codec-http" % nettyVersion,
   "io.netty" % "netty-common" % nettyVersion,
   "com.lihaoyi" %% "ujson" % upickleVersion,
