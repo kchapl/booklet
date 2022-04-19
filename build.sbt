@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "scalatags" % "0.11.1",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC2",
   "com.squareup.okhttp3" % "okhttp" % "4.9.3",
-  "org.postgresql" % "postgresql" % "42.3.3" % Runtime,
+  "org.postgresql" % "postgresql" % "42.3.4" % Runtime,
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
