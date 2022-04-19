@@ -23,5 +23,4 @@ jobs:
           scalafmtCheckAll
           scalafmtSbtCheck
           test
-          undeclaredCompileDependenciesTest
           unusedCompileDependenciesTest
