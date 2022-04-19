@@ -23,4 +23,3 @@ jobs:
           scalafmtCheckAll
           scalafmtSbtCheck
           test
-          unusedCompileDependenciesTest
