@@ -4,7 +4,7 @@ import booklet.Failure
 import io.netty.handler.codec.http.HttpHeaderNames.{CONTENT_TYPE, LOCATION}
 import io.netty.handler.codec.http.HttpHeaderValues.TEXT_HTML
 import io.netty.util.AsciiString
-import zhttp.http.Status.SEE_OTHER
+import zhttp.http.Status.SeeOther
 import zhttp.http._
 
 object CustomResponse {
@@ -26,7 +26,7 @@ object CustomResponse {
 
   def seeOther(path: String): Response =
     Response(
-      status = SEE_OTHER,
+      status = SeeOther,
       headers = Headers(LOCATION -> path)
     )
 

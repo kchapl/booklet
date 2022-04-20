@@ -207,7 +207,7 @@ object DatabaseLive {
       def deleteReading(id: ReadingId): ZIO[Any, Failure, Unit] = deleteReadingImpl(xa, id)
     }
 
-  private val effect = for {
+  val layer: ZLayer[Config, Failure, Database] = ZLayer.fromZIO(for {
     config <- ZIO.service[Config]
   } yield {
     val xa = {
@@ -221,7 +221,5 @@ object DatabaseLive {
         )
     }
     toDatabase(xa)
-  }
-
-  val layer: ZLayer[Config, Failure, Database] = effect.toLayer
+  })
 }

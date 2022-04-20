@@ -12,7 +12,7 @@ import zio._
 object ReadingHandlerLive {
 
   val layer: URLayer[Database, ReadingHandler] =
-    ZIO.service[Database].map(toReadingHandler).toLayer
+    ZLayer.fromZIO(ZIO.service[Database].map(toReadingHandler))
 
   private def toReadingHandler(db: Database): ReadingHandler =
     new ReadingHandler {
