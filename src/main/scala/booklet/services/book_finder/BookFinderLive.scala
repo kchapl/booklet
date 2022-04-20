@@ -1,6 +1,7 @@
 package booklet.services.book_finder
 
 import booklet.Failure
+import booklet.model.BookData
 import booklet.services.book_finder.Model.GoogleBookResult
 import booklet.utility.OptionPickler._
 import okhttp3.{OkHttpClient, Request, Response}
@@ -24,15 +25,11 @@ object BookFinderLive {
       .attempt(read[GoogleBookResult](response.body.string))
       .mapBoth(Failure.fromThrowable, GoogleBookResult.toBook)
 
-  private val effect: UIO[BookFinder] = ZIO.succeed { isbn =>
-    val fetchParsedResponse = for {
-      response <- ZManaged.acquireReleaseWith(fetchResponse(isbn))(response =>
-        UIO.succeed(response.close())
-      )
-      book <- parse(response).toManaged
-    } yield book
-    fetchParsedResponse.useNow
-  }
-
-  val layer: Layer[Failure, BookFinder] = effect.toLayer
+  val layer: Layer[Failure, BookFinder] = ZLayer.succeed(new BookFinder {
+    override def findByIsbn(isbn: String): IO[Failure, Option[BookData]] =
+      for {
+        response <- ZIO.scoped(ZIO.fromAutoCloseable(fetchResponse(isbn)))
+        bookData <- parse(response)
+      } yield bookData
+  })
 }

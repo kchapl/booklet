@@ -10,15 +10,14 @@ trait StaticFile {
 
 object StaticFile {
   def fetchContent(path: String): RIO[StaticFile, String] =
-    RIO.serviceWithZIO(_.fetchContent(path))
+    ZIO.serviceWithZIO(_.fetchContent(path))
 }
 
 object StaticFileLive {
-  private val effect: Task[StaticFile] =
-    Task.attempt(path =>
-      Task.acquireReleaseWith(Task.attempt(Source.fromResource(path)))(src =>
-        Task.succeed(src.close())
-      )(src => Task.succeed(src.getLines().toList.mkString("\n")))
-    )
-  val layer: TaskLayer[StaticFile] = effect.toLayer
+  val layer: ULayer[StaticFile] = ZLayer.succeed(new StaticFile {
+    override def fetchContent(path: String): Task[String] =
+      ZIO
+        .scoped(ZIO.fromAutoCloseable(ZIO.attempt(Source.fromResource(path))))
+        .map(_.getLines().toList.mkString("\n"))
+  })
 }

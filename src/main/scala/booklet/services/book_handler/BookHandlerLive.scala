@@ -16,14 +16,14 @@ object BookHandlerLive {
       .fromOption(bookId.toLongOption)
       .map(BookId(_))
 
-  private def fetchAllImpl(db: Database): UIO[Response] =
+  private def fetchAllImpl(db: Database) =
     db.fetchAllBooks
       .fold(
         serverFailure,
-        books => ok(BookView.list(books).toString)
+        books => ok(BookView.list(books))
       )
 
-  private def fetchImpl(db: Database, bookId: String): UIO[Response] =
+  private def fetchImpl(db: Database, bookId: String) =
     toBookId(bookId)
       .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
@@ -34,12 +34,12 @@ object BookHandlerLive {
               serverFailure,
               {
                 case None       => notFound(Path(bookId))
-                case Some(book) => ok(BookView.list(Seq(book)).toString)
+                case Some(book) => ok(BookView.list(Seq(book)))
               }
             )
       )
 
-  private def createImpl(db: Database, request: Request): IO[Failure, Response] =
+  private def createImpl(db: Database, request: Request) =
     Query
       .fromRequest(request)
       .flatMap(requestQry =>
@@ -57,7 +57,7 @@ object BookHandlerLive {
           )
       )
 
-  private def updateImpl(db: Database, bookId: String)(request: Request): IO[Failure, Response] =
+  private def updateImpl(db: Database, bookId: String)(request: Request) =
     Query
       .fromRequest(request)
       .flatMap(requestQry =>
@@ -74,7 +74,7 @@ object BookHandlerLive {
           )
       )
 
-  private def deleteImpl(db: Database, bookId: String): UIO[Response] =
+  private def deleteImpl(db: Database, bookId: String) =
     toBookId(bookId)
       .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
@@ -101,8 +101,6 @@ object BookHandlerLive {
       override def delete(bookId: String): UIO[Response] = deleteImpl(db, bookId)
     }
 
-  private val effect: URIO[Database, BookHandler] =
-    ZIO.service[Database].map(fromDatabase)
-
-  val layer: URLayer[Database, BookHandler] = effect.toLayer
+  val layer: URLayer[Database, BookHandler] =
+    ZLayer.fromZIO(ZIO.service[Database].map(fromDatabase))
 }
