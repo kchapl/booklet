@@ -66,7 +66,7 @@ object Router extends ZIOAppDefault {
     }
 
   private val program =
-    ZIO.service[Config].flatMap { config =>
+    Config.service.flatMap { config =>
       Server.start(
         port = config.app.port,
         http = rootApp ++ staticApp ++ bookApp ++ readingApp ++ bookFinderApp
@@ -76,7 +76,7 @@ object Router extends ZIOAppDefault {
   override def run: ZIO[ZIOAppArgs with Scope, Any, Any] =
     program
       .provide(
-        ZLayer.fromZIO(Config.load),
+        ConfigLive.layer,
         StaticFileLive.layer,
         DatabaseLive.layer,
         BookHandlerLive.layer,
