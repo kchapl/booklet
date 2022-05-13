@@ -9,9 +9,9 @@ import zio._
 
 object BookFinderLive {
 
-  private val client = new OkHttpClient()
+  private val client = new OkHttpClient
 
-  private def request(isbn: String) = new Request.Builder()
+  private def request(isbn: String) = new Request.Builder
     .url(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
     .build()
 
