@@ -17,7 +17,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
     object FetchAllBooks extends Effect[Unit, booklet.Failure, List[Book]]
 
     def fail[A](): IO[booklet.Failure, A] =
-      IO.fail(booklet.Failure(message = "Unexpected", cause = None))
+      ZIO.fail(booklet.Failure(message = "Unexpected", cause = None))
 
     val compose: URLayer[Proxy, Database] =
       ZLayer.fromZIO(
@@ -70,7 +70,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
 
           val app = BookHandler.fetchAll
           val out = app.provide(mockEnv, BookHandlerLive.layer)
-          assertM(out)(equalTo(CustomResponse.ok(BookView.list(books))))
+          assertZIO(out)(equalTo(CustomResponse.ok(BookView.list(books))))
         },
         test("succeeds with an empty list of books") {
 
@@ -79,7 +79,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
 
           val app = BookHandler.fetchAll
           val out = app.provide(mockEnv.toLayer, BookHandlerLive.layer)
-          assertM(out)(equalTo(CustomResponse.ok(BookView.list(books))))
+          assertZIO(out)(equalTo(CustomResponse.ok(BookView.list(books))))
         }
       )
     )
