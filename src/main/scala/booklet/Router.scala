@@ -15,6 +15,8 @@ import zio._
 
 object Router extends ZIOAppDefault {
 
+  private val books = "books"
+
   private val rootApp = Http.collect[Request] { case GET -> !! =>
     http.CustomResponse.ok(data = RootView.show.toString)
   }
@@ -29,11 +31,11 @@ object Router extends ZIOAppDefault {
   private val bookApp =
     Http
       .collectZIO[Request] {
-        case GET -> !! / "books"                  => BookHandler.fetchAll
-        case GET -> !! / "books" / bookId         => BookHandler.fetch(bookId)
-        case req @ POST -> !! / "books"           => BookHandler.create(req)
-        case req @ PATCH -> !! / "books" / bookId => BookHandler.update(bookId)(req)
-        case DELETE -> !! / "books" / bookId      => BookHandler.delete(bookId)
+        case GET -> !! / `books`                  => BookHandler.fetchAll
+        case GET -> !! / `books` / bookId         => BookHandler.fetch(bookId)
+        case req @ POST -> !! / `books`           => BookHandler.create(req)
+        case req @ PATCH -> !! / `books` / bookId => BookHandler.update(bookId)(req)
+        case DELETE -> !! / `books` / bookId      => BookHandler.delete(bookId)
       }
       .mapError(failure => new RuntimeException(failure.message))
 
