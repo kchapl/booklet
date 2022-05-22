@@ -115,7 +115,7 @@ object DatabaseLive {
       .transact(xa)
       .mapError(Failure.fromThrowable)
 
-  private def InsertBookImpl(xa: Transactor[Task], data: BookData) =
+  private def insertBookImpl(xa: Transactor[Task], data: BookData) =
     Query
       .insertBook(data)
       .update
@@ -192,7 +192,7 @@ object DatabaseLive {
 
       def fetchReading(id: ReadingId): ZIO[Any, Failure, Option[Reading]] = fetchReadingImpl(xa, id)
 
-      def insertBook(data: BookData): ZIO[Any, Failure, Unit] = InsertBookImpl(xa, data)
+      def insertBook(data: BookData): ZIO[Any, Failure, Unit] = insertBookImpl(xa, data)
 
       def insertReading(data: ReadingData): ZIO[Any, Failure, Unit] = insertReadingImpl(xa, data)
 
