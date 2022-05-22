@@ -11,6 +11,8 @@ import zio._
 
 object BookHandlerLive {
 
+  private val booksPath = "/books"
+
   private def toBookId(bookId: String) =
     ZIO
       .fromOption(bookId.toLongOption)
@@ -52,7 +54,7 @@ object BookHandlerLive {
                 .insertBook(bookData)
                 .fold(
                   serverFailure,
-                  _ => seeOther(path = "/books")
+                  _ => seeOther(booksPath)
                 )
           )
       )
@@ -69,7 +71,7 @@ object BookHandlerLive {
                 .updateBook(id, BookData.partialFromHttpQuery(requestQry))
                 .fold(
                   serverFailure,
-                  _ => seeOther("/books")
+                  _ => seeOther(booksPath)
                 )
           )
       )
@@ -83,7 +85,7 @@ object BookHandlerLive {
             .deleteBook(id)
             .fold(
               serverFailure,
-              _ => seeOther("/books")
+              _ => seeOther(booksPath)
             )
       )
 
