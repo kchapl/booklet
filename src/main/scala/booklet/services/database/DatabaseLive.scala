@@ -19,19 +19,25 @@ object DatabaseLive {
 
   private object Query {
 
-    val fetchAllBooks: Fragment =
-      fr"SELECT id, isbn, author, title FROM books"
-
     private val readingSelectClause =
       fr"SELECT r.id, b.id, b.isbn, b.author, b.title, r.completed, r.rating"
 
+    private def idFilterClause[A](id: A) = fr"WHERE id=$id"
+
+    val fetchAllBooks: Fragment =
+      fr"SELECT id, isbn, author, title" ++
+        fr"FROM books"
+
     val fetchAllReadings: Fragment =
       readingSelectClause ++
-        fr"FROM books b JOIN readings r" ++
+        fr"FROM books b" ++
+        fr"JOIN readings r" ++
         fr"ON r.book_id = b.id"
 
     def fetchBook(id: BookId): Fragment =
-      fr"SELECT id, isbn, author, title FROM books WHERE id = ${id.value}"
+      fr"SELECT id, isbn, author, title" ++
+        fr"FROM books" ++
+        fr"WHERE id = ${id.value}"
 
     def fetchReading(id: ReadingId): Fragment =
       readingSelectClause ++
@@ -53,23 +59,23 @@ object DatabaseLive {
         data.isbn.map(isbn => fr"isbn = ${isbn.value}"),
         data.author.map(author => fr"author = ${author.value}"),
         data.title.map(title => fr"title = ${title.value}")
-      ) ++ fr"WHERE id=$id"
+      ) ++ idFilterClause(id)
 
     def updateReading(id: ReadingId, data: ReadingData): Fragment =
       fr"UPDATE readings" ++ setOpt(
         data.completed.map(completed => fr"completed = ${completed.toString}"),
         data.rating.map(rating => fr"rating = ${rating.value}")
-      ) ++ fr"WHERE id=$id"
+      ) ++ idFilterClause(id)
 
     def deleteBook(id: BookId): Fragment =
       fr"DELETE" ++
         fr"FROM books" ++
-        fr"WHERE id = $id"
+        idFilterClause(id)
 
     def deleteReading(id: ReadingId): Fragment =
       fr"DELETE" ++
         fr"FROM readings" ++
-        fr"WHERE id = $id"
+        idFilterClause(id)
   }
 
   implicit val dateGet: Get[LocalDate] =
