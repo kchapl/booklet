@@ -22,8 +22,11 @@ object DatabaseLive {
     val fetchAllBooks: Fragment =
       fr"SELECT id, isbn, author, title FROM books"
 
+    private val readingSelectClause =
+      fr"SELECT r.id, b.id, b.isbn, b.author, b.title, r.completed, r.rating"
+
     val fetchAllReadings: Fragment =
-      fr"SELECT r.id, b.id, b.isbn, b.author, b.title, r.completed, r.rating" ++
+      readingSelectClause ++
         fr"FROM books b JOIN readings r" ++
         fr"ON r.book_id = b.id"
 
@@ -31,7 +34,7 @@ object DatabaseLive {
       fr"SELECT id, isbn, author, title FROM books WHERE id = ${id.value}"
 
     def fetchReading(id: ReadingId): Fragment =
-      fr"SELECT r.id, b.id, b.isbn, b.author, b.title, r.completed, r.rating" ++
+      readingSelectClause ++
         fr"FROM books" ++
         fr"JOIN readings r" ++
         fr"ON r.book_id = b.id" ++
