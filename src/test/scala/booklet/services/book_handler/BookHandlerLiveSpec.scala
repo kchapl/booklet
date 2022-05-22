@@ -70,7 +70,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
 
           val app = BookHandler.fetchAll
           val out = app.provide(mockEnv, BookHandlerLive.layer)
-          assertZIO(out)(equalTo(CustomResponse.ok(BookView.list(books))))
+          assertM(out)(equalTo(CustomResponse.ok(BookView.list(books))))
         },
         test("succeeds with an empty list of books") {
 
@@ -79,7 +79,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
 
           val app = BookHandler.fetchAll
           val out = app.provide(mockEnv.toLayer, BookHandlerLive.layer)
-          assertZIO(out)(equalTo(CustomResponse.ok(BookView.list(books))))
+          assertM(out)(equalTo(CustomResponse.ok(BookView.list(books))))
         }
       )
     )

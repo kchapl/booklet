@@ -10,7 +10,7 @@ import booklet.services.{StaticFile, StaticFileLive}
 import booklet.views.RootView
 import zhttp.http.Method.{DELETE, GET, PATCH, POST}
 import zhttp.http._
-import zhttp.service.Server
+import zhttp.service.{ChannelFactory, EventLoopGroup, Server}
 import zio._
 
 object Router extends ZIOAppDefault {
@@ -77,11 +77,13 @@ object Router extends ZIOAppDefault {
     program
       .provide(
         ConfigLive.layer,
-        StaticFileLive.layer,
         DatabaseLive.layer,
         BookHandlerLive.layer,
         ReadingHandlerLive.layer,
-        BookFinderLive.layer
+        StaticFileLive.layer,
+        BookFinderLive.layer,
+        EventLoopGroup.auto(),
+        ChannelFactory.auto
       )
       .forever
 }
