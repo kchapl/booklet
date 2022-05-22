@@ -14,10 +14,14 @@ case class BookData(
 object BookData {
   implicit val writer: Writer[BookData] = macroW
 
+  private val isbn = "isbn"
+  private val authr = "author"
+  private val ttle = "title"
+
   def completeFromHttpQuery(qry: Map[String, String]): Option[BookData] = for {
-    isbn <- qry.get("isbn")
-    author <- qry.get("author")
-    title <- qry.get("title")
+    isbn <- qry.get(isbn)
+    author <- qry.get(authr)
+    title <- qry.get(ttle)
   } yield BookData(
     isbn = Some(Isbn(isbn)),
     author = Some(Author(author)),
@@ -28,9 +32,9 @@ object BookData {
   )
 
   def partialFromHttpQuery(qry: Map[String, String]): BookData = BookData(
-    isbn = qry.get("isbn").map(Isbn.apply),
-    author = qry.get("author").map(Author.apply),
-    title = qry.get("title").map(Title.apply),
+    isbn = qry.get(isbn).map(Isbn.apply),
+    author = qry.get(authr).map(Author.apply),
+    title = qry.get(ttle).map(Title.apply),
     subtitle = None,
     thumbnail = None,
     smallThumbnail = None
