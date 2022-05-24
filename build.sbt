@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "com.github.pureconfig" %% "pureconfig" % "0.17.1",
   "com.lihaoyi" %% "scalatags" % "0.11.1",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC2",
-  "org.postgresql" % "postgresql" % "42.3.5" % Runtime,
+  "org.postgresql" % "postgresql" % "42.3.6" % Runtime,
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
