@@ -22,8 +22,6 @@ object DatabaseLive {
     private val readingSelectClause =
       fr"SELECT r.id, b.id, b.isbn, b.author, b.title, r.completed, r.rating"
 
-    private def idFilterClause[A](id: A) = fr"WHERE id=$id"
-
     val fetchAllBooks: Fragment =
       fr"SELECT id, isbn, author, title" ++
         fr"FROM books"
@@ -59,23 +57,23 @@ object DatabaseLive {
         data.isbn.map(isbn => fr"isbn = ${isbn.value}"),
         data.author.map(author => fr"author = ${author.value}"),
         data.title.map(title => fr"title = ${title.value}")
-      ) ++ idFilterClause(id)
+      ) ++ fr"WHERE id=$id"
 
     def updateReading(id: ReadingId, data: ReadingData): Fragment =
       fr"UPDATE readings" ++ setOpt(
         data.completed.map(completed => fr"completed = ${completed.toString}"),
         data.rating.map(rating => fr"rating = ${rating.value}")
-      ) ++ idFilterClause(id)
+      ) ++ fr"WHERE id=$id"
 
     def deleteBook(id: BookId): Fragment =
       fr"DELETE" ++
         fr"FROM books" ++
-        idFilterClause(id)
+        fr"WHERE id=$id"
 
     def deleteReading(id: ReadingId): Fragment =
       fr"DELETE" ++
         fr"FROM readings" ++
-        idFilterClause(id)
+        fr"WHERE id=$id"
   }
 
   implicit val dateGet: Get[LocalDate] =
