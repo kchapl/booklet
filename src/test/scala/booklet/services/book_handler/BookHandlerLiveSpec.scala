@@ -26,6 +26,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
           .map { proxy =>
             new Database {
               val fetchAllBooks: IO[booklet.Failure, List[Book]] = proxy(FetchAllBooks)
+
               val fetchAllReadings: IO[booklet.Failure, List[Reading]] = fail()
 
               def fetchBook(id: BookId): IO[booklet.Failure, Option[Book]] = fail()
@@ -49,8 +50,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
       )
   }
 
-  // noinspection TypeAnnotation
-  val spec =
+  val spec: ZSpec[TestEnvironment, Any] =
     suite("BookHandlerLiveSpec")(
       suite("fetchAll")(
         test("succeeds with a list of books") {
