@@ -1,7 +1,8 @@
 package booklet
 
-import booklet.http.CustomResponse.{badRequest, notFound, serverFailure}
+import booklet.http.CustomResponse.{badRequest, serverFailure}
 import booklet.http.Query
+import booklet.service.GoogleBookFinderLive
 import booklet.services.book_finder.{BookFinder, BookFinderLive}
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
 import booklet.services.database.DatabaseLive
@@ -60,7 +61,7 @@ object Router extends ZIOAppDefault {
             .fold(
               serverFailure,
               {
-                case None       => notFound(Path(isbn))
+                case None       => badRequest(s"No book found for ISBN $isbn")
                 case Some(book) => Response.text(book.toString)
               }
             )
@@ -68,14 +69,15 @@ object Router extends ZIOAppDefault {
     }
 
   private val program =
-    Config.service.flatMap { config =>
-      Server.start(
+    for {
+      config <- Config.service
+      _ <- Server.start(
         port = config.app.port,
         http = rootApp ++ staticApp ++ bookApp ++ readingApp ++ bookFinderApp
       )
-    }
+    } yield ()
 
-  override def run: ZIO[ZIOAppArgs with Scope, Any, Any] =
+  override def run: ZIO[ZIOAppArgs, Any, Any] =
     program
       .provide(
         ConfigLive.layer,
@@ -83,6 +85,7 @@ object Router extends ZIOAppDefault {
         BookHandlerLive.layer,
         ReadingHandlerLive.layer,
         StaticFileLive.layer,
+        GoogleBookFinderLive.layer,
         BookFinderLive.layer,
         EventLoopGroup.auto(),
         ChannelFactory.auto
