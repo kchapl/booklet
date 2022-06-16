@@ -2,10 +2,10 @@ package booklet.services.book_finder
 
 import booklet.Failure
 import booklet.model.BookData
-import booklet.services.book_finder.Model.GoogleBookResult
+import booklet.service.GoogleBookFinder
 import booklet.services.book_finder.Model.GoogleBookResult.toBook
-import booklet.utility.OptionPickler.read
-import zhttp.service.{ChannelFactory, Client, EventLoopGroup}
+import booklet.services.book_finder.Model.{EmptyGoogleBookResult, GoogleBookResult}
+import booklet.utility.OptionPickler._
 import zio._
 
 trait BookFinder {
@@ -19,18 +19,19 @@ object BookFinder {
 
 object BookFinderLive {
 
-  val layer: ZLayer[EventLoopGroup with ChannelFactory, Failure, BookFinder] = ZLayer.fromZIO(for {
-    eventLoopGroup <- ZIO.service[EventLoopGroup]
-    channelFactory <- ZIO.service[ChannelFactory]
+  val layer: ZLayer[GoogleBookFinder, Failure, BookFinder] = ZLayer.fromZIO(for {
+    googleBookFinder <- ZIO.service[GoogleBookFinder]
   } yield new BookFinder {
     override def findByIsbn(isbn: String): IO[Failure, Option[BookData]] =
       for {
-        response <- Client
-          .request(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
-          .provide(ZLayer.succeed(eventLoopGroup), ZLayer.succeed(channelFactory))
+        responseBody <- googleBookFinder.findByIsbn(isbn)
+        book <- ZIO
+          .attempt(read[GoogleBookResult](responseBody))
+          .map(toBook)
+          .debug("1")
+          .orElse(ZIO.attempt(read[EmptyGoogleBookResult](responseBody)).as(None).debug("2"))
           .mapError(Failure.fromThrowable)
-        responseBody <- response.bodyAsString.mapError(Failure.fromThrowable)
-        book <- ZIO.attempt(read[GoogleBookResult](responseBody)).mapError(Failure.fromThrowable)
-      } yield toBook(book)
+          .debug("result")
+      } yield book
   })
 }
