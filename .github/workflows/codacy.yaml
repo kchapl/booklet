@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3.0.2
 
       - name: Run Codacy analysis
-        uses: codacy/codacy-analysis-cli-action@4.0.2
+        uses: codacy/codacy-analysis-cli-action@v4.1.0
         with:
           output: results.sarif
           format: sarif
