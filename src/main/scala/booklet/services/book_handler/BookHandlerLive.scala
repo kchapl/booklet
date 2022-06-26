@@ -35,7 +35,7 @@ object BookHandlerLive {
             .fold(
               serverFailure,
               {
-                case None       => notFound(Path(bookId))
+                case None       => notFound(Path(Vector(bookId), trailingSlash = false))
                 case Some(book) => ok(BookView.list(Seq(book)))
               }
             )
