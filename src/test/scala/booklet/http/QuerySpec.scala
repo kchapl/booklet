@@ -4,7 +4,7 @@ import zio.test._
 
 object QuerySpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[Any, Nothing] = test("fromFormBody succeeds") {
+  override def spec: Spec[TestEnvironment, Any] = test("fromFormBody succeeds") {
     val body =
       """----------------------------138933385763277926868964
         |Content-Disposition: form-data; name="isbn"
