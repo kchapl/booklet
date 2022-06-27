@@ -1,10 +1,10 @@
-package booklet.services.book_finder
+package booklet.service.bookfinder
 
 import booklet.model.{Author, BookData, Isbn, Title}
 import booklet.utility.OptionPickler._
 import cats.implicits._
 
-object Model {
+object GoogleBookModel {
 
   case class Identifier(`type`: String, identifier: String)
 

@@ -2,8 +2,7 @@ package booklet
 
 import booklet.http.CustomResponse.{badRequest, serverFailure}
 import booklet.http.Query
-import booklet.service.GoogleBookFinderLive
-import booklet.services.book_finder.{BookFinder, BookFinderLive}
+import booklet.service.bookfinder.{GoogleBookFinder, GoogleBookFinderLive}
 import booklet.services.book_handler.{BookHandler, BookHandlerLive}
 import booklet.services.database.DatabaseLive
 import booklet.services.reading_handler.{ReadingHandler, ReadingHandlerLive}
@@ -56,7 +55,7 @@ object Router extends ZIOAppDefault {
       Query.param(req)(name = "isbn") match {
         case None => ZIO.succeed(badRequest("Missing ISBN"))
         case Some(isbn) =>
-          BookFinder
+          GoogleBookFinder
             .findByIsbn(isbn)
             .fold(
               serverFailure,
@@ -86,7 +85,6 @@ object Router extends ZIOAppDefault {
         ReadingHandlerLive.layer,
         StaticFileLive.layer,
         GoogleBookFinderLive.layer,
-        BookFinderLive.layer,
         EventLoopGroup.auto(),
         ChannelFactory.auto
       )
