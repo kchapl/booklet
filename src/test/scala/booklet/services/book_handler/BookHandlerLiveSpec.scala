@@ -2,6 +2,7 @@ package booklet.services.book_handler
 
 import booklet.http.CustomResponse
 import booklet.model._
+import booklet.service.{BookHandler, BookHandlerLive}
 import booklet.services.database.Database
 import booklet.views.BookView
 import zio._

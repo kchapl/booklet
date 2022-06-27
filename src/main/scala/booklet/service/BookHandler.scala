@@ -1,4 +1,4 @@
-package booklet.services.book_handler
+package booklet.service
 
 import booklet.Failure
 import booklet.http.CustomResponse._
@@ -6,8 +6,36 @@ import booklet.http.Query
 import booklet.model.{BookData, BookId}
 import booklet.services.database.Database
 import booklet.views.BookView
-import zhttp.http._
-import zio._
+import zhttp.http.{Path, Request, Response}
+import zio.{IO, UIO, URLayer, ZIO, ZLayer}
+
+trait BookHandler {
+  def fetchAll: IO[Failure, Response]
+
+  def fetch(bookId: String): IO[Failure, Response]
+
+  def create(request: Request): IO[Failure, Response]
+
+  def update(bookId: String)(request: Request): IO[Failure, Response]
+
+  def delete(bookId: String): IO[Failure, Response]
+}
+
+object BookHandler {
+  val fetchAll: ZIO[BookHandler, Failure, Response] = ZIO.serviceWithZIO(_.fetchAll)
+
+  def fetch(bookId: String): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.fetch(bookId))
+
+  def create(request: Request): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.create(request))
+
+  def update(bookId: String)(request: Request): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.update(bookId)(request))
+
+  def delete(bookId: String): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.delete(bookId))
+}
 
 object BookHandlerLive {
 
