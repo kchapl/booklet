@@ -50,7 +50,7 @@ object ReadingHandlerLive {
             .fold(
               serverFailure,
               {
-                case None          => notFound(Path(readingId))
+                case None          => notFound(Path(Vector(readingId), trailingSlash = false))
                 case Some(reading) => ok(ReadingView.list(Seq(reading)).toString)
               }
             )
