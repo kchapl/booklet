@@ -1,4 +1,4 @@
-package booklet.services.reading_handler
+package booklet.service
 
 import booklet.Failure
 import booklet.http.CustomResponse._
@@ -6,8 +6,36 @@ import booklet.http.Query
 import booklet.model.{ReadingData, ReadingId}
 import booklet.service.database.Database
 import booklet.views.ReadingView
-import zhttp.http._
+import zhttp.http.{Path, Request, Response}
 import zio._
+
+trait ReadingHandler {
+  def fetchAll: IO[Failure, Response]
+
+  def fetch(readingId: String): IO[Failure, Response]
+
+  def create(request: Request): IO[Failure, Response]
+
+  def update(readingId: String)(request: Request): IO[Failure, Response]
+
+  def delete(readingId: String): IO[Failure, Response]
+}
+
+object ReadingHandler {
+  val fetchAll: ZIO[ReadingHandler, Failure, Response] = ZIO.serviceWithZIO(_.fetchAll)
+
+  def fetch(readingId: String): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.fetch(readingId))
+
+  def create(request: Request): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.create(request))
+
+  def update(readingId: String)(request: Request): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.update(readingId)(request))
+
+  def delete(readingId: String): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.delete(readingId))
+}
 
 object ReadingHandlerLive {
 
