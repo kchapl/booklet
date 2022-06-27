@@ -3,8 +3,8 @@ package booklet
 import booklet.http.CustomResponse.{badRequest, serverFailure}
 import booklet.http.Query
 import booklet.service.bookfinder.{GoogleBookFinder, GoogleBookFinderLive}
+import booklet.service.database.DatabaseLive
 import booklet.service.{BookHandler, BookHandlerLive}
-import booklet.services.database.DatabaseLive
 import booklet.services.reading_handler.{ReadingHandler, ReadingHandlerLive}
 import booklet.services.{StaticFile, StaticFileLive}
 import booklet.views.RootView

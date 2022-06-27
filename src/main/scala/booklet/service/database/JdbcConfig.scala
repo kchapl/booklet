@@ -1,4 +1,4 @@
-package booklet.services.database
+package booklet.service.database
 
 import cats.implicits._
 

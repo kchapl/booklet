@@ -2,7 +2,7 @@ package booklet.service
 
 import booklet.http.CustomResponse
 import booklet.model._
-import booklet.services.database.Database
+import booklet.service.database.Database
 import booklet.views.BookView
 import zio._
 import zio.mock.Expectation._

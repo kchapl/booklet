@@ -4,7 +4,7 @@ import booklet.Failure
 import booklet.http.CustomResponse._
 import booklet.http.Query
 import booklet.model.{ReadingData, ReadingId}
-import booklet.services.database.Database
+import booklet.service.database.Database
 import booklet.views.ReadingView
 import zhttp.http._
 import zio._
