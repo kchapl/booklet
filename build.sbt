@@ -12,7 +12,7 @@ semanticdbVersion := scalafixSemanticdb.revision
 // required by sbt-native-packager plugin
 enablePlugins(JavaAppPackaging)
 
-val zioVersion = "2.0.0-RC6"
+val zioVersion = "2.0.0"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.4.0" % Runtime,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-  "dev.zio" %% "zio-mock" % "1.0.0-RC6" % Test
+  "dev.zio" %% "zio-mock" % "1.0.0-RC8" % Test
 )
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
