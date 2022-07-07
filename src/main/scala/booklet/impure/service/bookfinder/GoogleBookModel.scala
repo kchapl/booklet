@@ -1,21 +1,21 @@
 package booklet.impure.service.bookfinder
 
 import booklet.pure.model.{Author, BookData, Isbn, Title}
-import booklet.pure.utility.OptionPickler._
 import cats.implicits._
+import zio.json.{DeriveJsonDecoder, JsonDecoder}
 
 object GoogleBookModel {
 
   case class Identifier(`type`: String, identifier: String)
 
   object Identifier {
-    implicit val reader: Reader[Identifier] = macroR
+    implicit val decoder: JsonDecoder[Identifier] = DeriveJsonDecoder.gen[Identifier]
   }
 
   case class ImageLinks(smallThumbnail: String, thumbnail: String)
 
   object ImageLinks {
-    implicit val reader: Reader[ImageLinks] = macroR
+    implicit val decoder: JsonDecoder[ImageLinks] = DeriveJsonDecoder.gen[ImageLinks]
   }
 
   case class GoogleBook(
@@ -31,19 +31,19 @@ object GoogleBookModel {
   )
 
   object GoogleBook {
-    implicit val reader: Reader[GoogleBook] = macroR
+    implicit val decoder: JsonDecoder[GoogleBook] = DeriveJsonDecoder.gen[GoogleBook]
   }
 
   case class GoogleBookItem(volumeInfo: GoogleBook)
 
   object GoogleBookItem {
-    implicit val reader: Reader[GoogleBookItem] = macroR
+    implicit val decoder: JsonDecoder[GoogleBookItem] = DeriveJsonDecoder.gen[GoogleBookItem]
   }
 
   case class GoogleBookResult(totalItems: Int, items: Seq[GoogleBookItem])
 
   object GoogleBookResult {
-    implicit val reader: Reader[GoogleBookResult] = macroR
+    implicit val decoder: JsonDecoder[GoogleBookResult] = DeriveJsonDecoder.gen[GoogleBookResult]
 
     def toBook(result: GoogleBookResult): Option[BookData] =
       if (result.totalItems === 1)
@@ -72,6 +72,7 @@ object GoogleBookModel {
   case class EmptyGoogleBookResult(totalItems: Int, kind: String)
 
   object EmptyGoogleBookResult {
-    implicit val reader: Reader[EmptyGoogleBookResult] = macroR
+    implicit val decoder: JsonDecoder[EmptyGoogleBookResult] =
+      DeriveJsonDecoder.gen[EmptyGoogleBookResult]
   }
 }

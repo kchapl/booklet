@@ -1,6 +1,6 @@
 package booklet.pure.model
 
-import upickle.default._
+import zio.json.{DeriveJsonEncoder, JsonEncoder}
 
 case class BookData(
     isbn: Option[Isbn],
@@ -12,7 +12,7 @@ case class BookData(
 )
 
 object BookData {
-  implicit val writer: Writer[BookData] = macroW
+  implicit val encoder: JsonEncoder[BookData] = DeriveJsonEncoder.gen[BookData]
 
   private val isbn = "isbn"
   private val authr = "author"
