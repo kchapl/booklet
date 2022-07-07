@@ -1,5 +1,6 @@
 package booklet.http
 
+import booklet.pure.http.Query
 import zio.test._
 
 object QuerySpec extends ZIOSpecDefault {
