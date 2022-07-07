@@ -4,9 +4,9 @@ import booklet.impure.service.bookfinder.GoogleBookModel.GoogleBookResult.toBook
 import booklet.impure.service.bookfinder.GoogleBookModel.{EmptyGoogleBookResult, GoogleBookResult}
 import booklet.pure.Failure
 import booklet.pure.model.BookData
-import booklet.pure.utility.OptionPickler._
 import zhttp.service.{ChannelFactory, Client, EventLoopGroup}
 import zio._
+import zio.json.DecoderOps
 
 trait GoogleBookFinder {
   def findByIsbn(isbn: String): IO[Failure, Option[BookData]]
@@ -36,10 +36,10 @@ object GoogleBookFinderLive {
             .mapError(Failure.fromThrowable)
           responseBody <- response.bodyAsString.mapError(Failure.fromThrowable)
           book <- ZIO
-            .attempt(read[GoogleBookResult](responseBody))
+            .fromEither(responseBody.fromJson[GoogleBookResult])
             .map(toBook)
-            .orElse(ZIO.attempt(read[EmptyGoogleBookResult](responseBody)).as(None))
-            .mapError(Failure.fromThrowable)
+            .orElse(ZIO.fromEither(responseBody.fromJson[EmptyGoogleBookResult]).as(None))
+            .mapError(Failure.fromDecodingException)
             .debug("result")
         } yield book
 

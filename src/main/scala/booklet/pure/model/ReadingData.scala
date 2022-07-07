@@ -1,6 +1,6 @@
 package booklet.pure.model
 
-import upickle.default._
+import zio.json.{DeriveJsonEncoder, JsonEncoder}
 
 import java.time.LocalDate
 import scala.util.Try
@@ -8,9 +8,7 @@ import scala.util.Try
 case class ReadingData(bookId: Option[BookId], completed: Option[LocalDate], rating: Option[Rating])
 
 object ReadingData {
-  implicit val writer: Writer[ReadingData] = macroW
-  implicit val dateWriter: ReadWriter[LocalDate] =
-    readwriter[String].bimap[LocalDate](_.toString, LocalDate.parse)
+  implicit val encoder: JsonEncoder[ReadingData] = DeriveJsonEncoder.gen[ReadingData]
 
   def completeFromHttpQuery(qry: Map[String, String]): Option[ReadingData] = for {
     bookIdStr <- qry.get("bookId")

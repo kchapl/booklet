@@ -1,9 +1,9 @@
 package booklet.pure.model
 
-import upickle.default._
+import zio.json.{DeriveJsonEncoder, JsonEncoder}
 
 case class Title(value: String) extends AnyVal
 
 object Title {
-  implicit val writer: Writer[Title] = macroW
+  implicit val encoder: JsonEncoder[Title] = DeriveJsonEncoder.gen[Title]
 }
