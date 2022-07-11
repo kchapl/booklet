@@ -6,7 +6,7 @@ import booklet.impure.service.database.DatabaseLive
 import booklet.pure.http
 import booklet.pure.http.CustomResponse.{badRequest, serverFailure}
 import booklet.pure.http.Query
-import booklet.pure.views.RootView
+import booklet.pure.views.{RootView, SignInView}
 import zhttp.http.Method.{DELETE, GET, PATCH, POST}
 import zhttp.http._
 import zhttp.service.{ChannelFactory, EventLoopGroup, Server}
@@ -14,10 +14,9 @@ import zio._
 
 object Router extends ZIOAppDefault {
 
-  private val books = "books"
-
-  private val rootApp = Http.collect[Request] { case GET -> !! =>
-    http.CustomResponse.ok(data = RootView.show.toString)
+  private val rootApp = Http.collect[Request] {
+    case GET -> !!             => http.CustomResponse.ok(data = RootView.show.toString)
+    case GET -> !! / "sign-in" => http.CustomResponse.ok(data = SignInView.show.toString)
   }
 
   private val staticApp =
@@ -30,11 +29,11 @@ object Router extends ZIOAppDefault {
   private val bookApp =
     Http
       .collectZIO[Request] {
-        case GET -> !! / `books`                  => BookHandler.fetchAll
-        case GET -> !! / `books` / bookId         => BookHandler.fetch(bookId)
-        case req @ POST -> !! / `books`           => BookHandler.create(req)
-        case req @ PATCH -> !! / `books` / bookId => BookHandler.update(bookId)(req)
-        case DELETE -> !! / `books` / bookId      => BookHandler.delete(bookId)
+        case GET -> !! / "books"                  => BookHandler.fetchAll
+        case GET -> !! / "books" / bookId         => BookHandler.fetch(bookId)
+        case req @ POST -> !! / "books"           => BookHandler.create(req)
+        case req @ PATCH -> !! / "books" / bookId => BookHandler.update(bookId)(req)
+        case DELETE -> !! / "books" / bookId      => BookHandler.delete(bookId)
       }
       .mapError(failure => new RuntimeException(failure.message))
 
