@@ -13,7 +13,7 @@ semanticdbVersion := scalafixSemanticdb.revision
 enablePlugins(JavaAppPackaging)
 
 val zioVersion = "2.0.0"
-val zhttpVersion = "2.0.0-RC9"
+val zhttpVersion = "2.0.0-RC10"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
