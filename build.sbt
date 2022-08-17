@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "io.d11" %% "zhttp" % zhttpVersion,
   "dev.zio" %% "zio-interop-cats" % "3.3.0",
-  "dev.zio" %% "zio-json" % "0.3.0-RC10",
+  "dev.zio" %% "zio-json" % "0.3.0-RC11",
   "com.github.pureconfig" %% "pureconfig" % "0.17.1",
   "com.lihaoyi" %% "scalatags" % "0.11.1",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC2",
