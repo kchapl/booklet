@@ -2,7 +2,7 @@ import sbt.Keys.semanticdbEnabled
 
 name := "booklet"
 
-scalaVersion := "2.13.8"
+scalaVersion := "2.13.9"
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 
 // required by Scalafix
