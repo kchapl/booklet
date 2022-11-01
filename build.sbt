@@ -12,7 +12,7 @@ semanticdbVersion := scalafixSemanticdb.revision
 // required by sbt-native-packager plugin
 enablePlugins(JavaAppPackaging)
 
-val zioVersion = "2.0.0"
+val zioVersion = "2.0.3"
 val zhttpVersion = "2.0.0-RC9"
 
 libraryDependencies ++= Seq(
