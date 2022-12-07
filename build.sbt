@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.4.0" % Runtime,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-  "dev.zio" %% "zio-mock" % "1.0.0-RC8" % Test,
+  "dev.zio" %% "zio-mock" % "1.0.0-RC9" % Test,
   "io.d11" %% "zhttp-test" % zhttpVersion % Test,
 )
 
