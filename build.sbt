@@ -2,7 +2,7 @@ import sbt.Keys.semanticdbEnabled
 
 name := "booklet"
 
-scalaVersion := "2.13.8"
+scalaVersion := "2.13.10"
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 
 // required by Scalafix
@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "zio-interop-cats" % "3.3.0",
   "dev.zio" %% "zio-json" % "0.3.0",
   "com.github.pureconfig" %% "pureconfig" % "0.17.1",
-  "com.lihaoyi" %% "scalatags" % "0.11.1",
+  "com.lihaoyi" %% "scalatags" % "0.12.0",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC2",
   "org.postgresql" % "postgresql" % "42.4.0" % Runtime,
   "dev.zio" %% "zio-test" % zioVersion % Test,
