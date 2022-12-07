@@ -10,12 +10,12 @@ jobs:
     steps:
 
       - name: Checkout repo
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
 
       - name: Set up Scala
         uses: olafurpg/setup-scala@v13
         with:
-          java-version: adopt@1.11
+          java-version: openjdk@1.17
 
       - name: Run SBT tasks
         run: >
