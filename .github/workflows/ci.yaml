@@ -15,7 +15,7 @@ jobs:
       - name: Set up Scala
         uses: olafurpg/setup-scala@v13
         with:
-          java-version: adopt@1.11
+          java-version: openjdk@1.17
 
       - name: Run SBT tasks
         run: >
