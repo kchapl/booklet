@@ -5,14 +5,10 @@ name := "booklet"
 scalaVersion := "2.13.10"
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 
-// required by Scalafix
-semanticdbEnabled := true
-semanticdbVersion := scalafixSemanticdb.revision
-
 // required by sbt-native-packager plugin
 enablePlugins(JavaAppPackaging)
 
-val zioVersion = "2.0.0"
+val zioVersion = "2.0.5"
 val zhttpVersion = "2.0.0-RC9"
 
 libraryDependencies ++= Seq(
