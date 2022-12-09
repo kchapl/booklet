@@ -9,7 +9,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 enablePlugins(JavaAppPackaging)
 
 val zioVersion = "2.0.5"
-val zhttpVersion = "2.0.0-RC9"
+val zhttpVersion = "2.0.0-RC11"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
