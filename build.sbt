@@ -14,8 +14,8 @@ val zhttpVersion = "2.0.0-RC11"
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "io.d11" %% "zhttp" % zhttpVersion,
-  "dev.zio" %% "zio-interop-cats" % "3.3.0",
-  "dev.zio" %% "zio-json" % "0.3.0",
+  "dev.zio" %% "zio-interop-cats" % "23.0.0.0",
+  "dev.zio" %% "zio-json" % "0.4.2",
   "com.github.pureconfig" %% "pureconfig" % "0.17.2",
   "com.lihaoyi" %% "scalatags" % "0.12.0",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC2",
