@@ -3,7 +3,6 @@ package booklet.service
 import booklet.impure.service.database.Database
 import booklet.impure.service.{BookHandler, BookHandlerLive}
 import booklet.pure.Failure
-import booklet.pure.http.CustomResponse
 import booklet.pure.model._
 import booklet.pure.views.BookView
 import zio._
@@ -72,7 +71,8 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
 
           val app = BookHandler.fetchAll
           val out = app.provide(mockEnv, BookHandlerLive.layer)
-          assertZIO(out)(equalTo(CustomResponse.ok(BookView.list(books))))
+
+          assertZIO(out.flatMap(_.body.asString))(equalTo(BookView.list(books)))
         },
         test("succeeds with an empty list of books") {
 
@@ -81,7 +81,7 @@ object BookHandlerLiveSpec extends ZIOSpecDefault {
 
           val app = BookHandler.fetchAll
           val out = app.provide(mockEnv, BookHandlerLive.layer)
-          assertZIO(out)(equalTo(CustomResponse.ok(BookView.list(books))))
+          assertZIO(out.flatMap(_.body.asString))(equalTo(BookView.list(books)))
         }
       )
     )

@@ -6,7 +6,8 @@ import booklet.pure.http.CustomResponse._
 import booklet.pure.http.Query
 import booklet.pure.model.{BookData, BookId}
 import booklet.pure.views.BookView
-import zhttp.http.{Path, Request, Response}
+import zhttp.http.Path.Segment
+import zhttp.http.{Body, Path, Request, Response}
 import zio.{IO, UIO, URLayer, ZIO, ZLayer}
 
 trait BookHandler {
@@ -50,7 +51,7 @@ object BookHandlerLive {
     db.fetchAllBooks
       .fold(
         serverFailure,
-        books => ok(BookView.list(books))
+        books => ok(Body.fromString(BookView.list(books)))
       )
 
   private def fetchImpl(db: Database, bookId: String) =
@@ -63,8 +64,8 @@ object BookHandlerLive {
             .fold(
               serverFailure,
               {
-                case None       => notFound(Path(Vector(bookId), trailingSlash = false))
-                case Some(book) => ok(BookView.list(Seq(book)))
+                case None       => notFound(Path(Vector(Segment(bookId))))
+                case Some(book) => ok(Body.fromString(BookView.list(Seq(book))))
               }
             )
       )

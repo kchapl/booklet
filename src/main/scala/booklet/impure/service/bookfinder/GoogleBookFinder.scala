@@ -34,7 +34,7 @@ object GoogleBookFinderLive {
             .request(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
             .provide(ZLayer.succeed(eventLoopGroup), ZLayer.succeed(channelFactory))
             .mapError(Failure.fromThrowable)
-          responseBody <- response.bodyAsString.mapError(Failure.fromThrowable)
+          responseBody <- response.body.asString.mapError(Failure.fromThrowable)
           book <- ZIO
             .fromEither(responseBody.fromJson[GoogleBookResult])
             .map(toBook)
