@@ -10,7 +10,7 @@ object Query {
     request.url.queryParams.get(name).flatMap(_.headOption)
 
   def fromRequest(request: Request): IO[Failure, Map[String, String]] =
-    request.bodyAsString.mapBoth(Failure.fromThrowable, fromFormBody)
+    request.body.asString.mapBoth(Failure.fromThrowable, fromFormBody)
 
   def fromFormBody(body: String): Map[String, String] =
     body

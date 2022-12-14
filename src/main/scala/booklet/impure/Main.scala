@@ -19,7 +19,7 @@ object Main extends ZIOAppDefault {
         Request,
         Response
       ] =
-        RootRouter.app ++ StaticRouter.app ++ BookRouter.app ++ ReadingRouter.app ++ BookFinderRouter.app
+        RootRouter.app ++ BookRouter.app ++ ReadingRouter.app ++ BookFinderRouter.app
       _ <- Server.start(
         port = config.app.port,
         http = apps

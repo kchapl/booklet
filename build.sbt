@@ -9,11 +9,10 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 enablePlugins(JavaAppPackaging)
 
 val zioVersion = "2.0.5"
-val zhttpVersion = "2.0.0-RC9"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
-  "io.d11" %% "zhttp" % zhttpVersion,
+  "io.d11" %% "zhttp" % "2.0.0-RC11",
   "dev.zio" %% "zio-interop-cats" % "23.0.0.0",
   "dev.zio" %% "zio-json" % "0.4.2",
   "com.github.pureconfig" %% "pureconfig" % "0.17.2",
@@ -23,7 +22,7 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
   "dev.zio" %% "zio-mock" % "1.0.0-RC9" % Test,
-  "io.d11" %% "zhttp-test" % zhttpVersion % Test,
+  "io.d11" %% "zhttp-test" % "2.0.0-RC9" % Test,
 )
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")

@@ -7,6 +7,6 @@ import zhttp.http._
 
 object RootRouter {
   val app: Http[Any, Nothing, Request, Response] = Http.collect[Request] { case GET -> !! =>
-    http.CustomResponse.ok(data = RootView.show.toString)
+    http.CustomResponse.ok(body = Body.fromString(RootView.show.toString))
   }
 }

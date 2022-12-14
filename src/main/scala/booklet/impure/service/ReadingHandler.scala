@@ -6,7 +6,8 @@ import booklet.pure.http.CustomResponse._
 import booklet.pure.http.Query
 import booklet.pure.model.{ReadingData, ReadingId}
 import booklet.pure.views.ReadingView
-import zhttp.http.{Path, Request, Response}
+import zhttp.http.Path.Segment
+import zhttp.http.{Body, Path, Request, Response}
 import zio._
 
 trait ReadingHandler {
@@ -65,7 +66,7 @@ object ReadingHandlerLive {
     db.fetchAllReadings
       .fold(
         serverFailure,
-        readings => ok(ReadingView.list(readings).toString)
+        readings => ok(Body.fromString(ReadingView.list(readings).toString))
       )
 
   private def fetchFrom(db: Database)(readingId: String) =
@@ -78,8 +79,8 @@ object ReadingHandlerLive {
             .fold(
               serverFailure,
               {
-                case None          => notFound(Path(Vector(readingId), trailingSlash = false))
-                case Some(reading) => ok(ReadingView.list(Seq(reading)).toString)
+                case None          => notFound(Path(Vector(Segment(readingId))))
+                case Some(reading) => ok(Body.fromString(ReadingView.list(Seq(reading)).toString))
               }
             )
       )
