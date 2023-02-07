@@ -8,7 +8,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 // required by sbt-native-packager plugin
 enablePlugins(JavaAppPackaging)
 
-val zioVersion = "2.0.5"
+val zioVersion = "2.0.7"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
