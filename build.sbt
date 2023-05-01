@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
   "io.d11" %% "zhttp" % "2.0.0-RC11",
   "dev.zio" %% "zio-interop-cats" % "23.0.0.0",
   "dev.zio" %% "zio-json" % "0.4.2",
-  "com.github.pureconfig" %% "pureconfig" % "0.17.2",
+  "com.github.pureconfig" %% "pureconfig" % "0.17.3",
   "com.lihaoyi" %% "scalatags" % "0.12.0",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC2",
   "org.postgresql" % "postgresql" % "42.5.4" % Runtime,
