@@ -8,7 +8,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
 // required by sbt-native-packager plugin
 enablePlugins(JavaAppPackaging)
 
-val zioVersion = "2.0.10"
+val zioVersion = "2.0.13"
 
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.5.4" % Runtime,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-  "dev.zio" %% "zio-mock" % "1.0.0-RC11" % Test,
+  "dev.zio" %% "zio-mock" % "1.0.0-RC10" % Test,
   "io.d11" %% "zhttp-test" % "2.0.0-RC9" % Test,
 )
 
