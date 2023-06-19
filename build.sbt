@@ -13,7 +13,7 @@ val zioVersion = "2.0.13"
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "io.d11" %% "zhttp" % "2.0.0-RC11",
-  "dev.zio" %% "zio-interop-cats" % "23.0.0.2",
+  "dev.zio" %% "zio-interop-cats" % "23.0.0.7",
   "dev.zio" %% "zio-json" % "0.5.0",
   "com.github.pureconfig" %% "pureconfig" % "0.17.3",
   "com.lihaoyi" %% "scalatags" % "0.12.0",
