@@ -8,7 +8,8 @@ case class BookData(
     title: Option[Title],
     subtitle: Option[Subtitle],
     thumbnail: Option[String],
-    smallThumbnail: Option[String]
+    smallThumbnail: Option[String],
+    userId: Option[String] // P5628
 )
 
 object BookData {
@@ -28,7 +29,8 @@ object BookData {
     title = Some(Title(title)),
     subtitle = None,
     thumbnail = None,
-    smallThumbnail = None
+    smallThumbnail = None,
+    userId = None // P5628
   )
 
   def partialFromHttpQuery(qry: Map[String, String]): BookData = BookData(
@@ -37,6 +39,7 @@ object BookData {
     title = qry.get(ttle).map(Title.apply),
     subtitle = None,
     thumbnail = None,
-    smallThumbnail = None
+    smallThumbnail = None,
+    userId = None // P5628
   )
 }

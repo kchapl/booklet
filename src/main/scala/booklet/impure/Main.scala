@@ -3,7 +3,7 @@ package booklet.impure
 import booklet.impure.router._
 import booklet.impure.service._
 import booklet.impure.service.bookfinder.{GoogleBookFinder, GoogleBookFinderLive}
-import booklet.impure.service.database.DoobieDatabase
+import booklet.impure.service.GoogleSheetsServiceLive
 import zhttp.http._
 import zhttp.service.{ChannelFactory, EventLoopGroup, Server}
 import zio.{ZIO, ZIOAppArgs, ZIOAppDefault}
@@ -30,7 +30,7 @@ object Main extends ZIOAppDefault {
     program
       .provide(
         ConfigLive.layer,
-        DoobieDatabase.layer,
+        GoogleSheetsServiceLive.layer,
         BookHandlerLive.layer,
         ReadingHandlerLive.layer,
         StaticFileLive.layer,

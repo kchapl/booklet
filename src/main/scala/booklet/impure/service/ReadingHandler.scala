@@ -1,6 +1,5 @@
 package booklet.impure.service
 
-import booklet.impure.service.database.Database
 import booklet.pure.Failure
 import booklet.pure.http.CustomResponse._
 import booklet.pure.http.Query
@@ -11,81 +10,66 @@ import zhttp.http.{Body, Path, Request, Response}
 import zio._
 
 trait ReadingHandler {
-  def fetchAll: IO[Failure, Response]
+  def fetchAll(userId: String): IO[Failure, Response]
 
-  def fetch(readingId: String): IO[Failure, Response]
+  def fetch(readingId: String, userId: String): IO[Failure, Response]
 
-  def create(request: Request): IO[Failure, Response]
+  def create(request: Request, userId: String): IO[Failure, Response]
 
-  def update(readingId: String)(request: Request): IO[Failure, Response]
+  def update(readingId: String, request: Request, userId: String): IO[Failure, Response]
 
-  def delete(readingId: String): IO[Failure, Response]
+  def delete(readingId: String, userId: String): IO[Failure, Response]
 }
 
 object ReadingHandler {
-  val fetchAll: ZIO[ReadingHandler, Failure, Response] = ZIO.serviceWithZIO(_.fetchAll)
+  def fetchAll(userId: String): ZIO[ReadingHandler, Failure, Response] = ZIO.serviceWithZIO(_.fetchAll(userId))
 
-  def fetch(readingId: String): ZIO[ReadingHandler, Failure, Response] =
-    ZIO.serviceWithZIO(_.fetch(readingId))
+  def fetch(readingId: String, userId: String): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.fetch(readingId, userId))
 
-  def create(request: Request): ZIO[ReadingHandler, Failure, Response] =
-    ZIO.serviceWithZIO(_.create(request))
+  def create(request: Request, userId: String): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.create(request, userId))
 
-  def update(readingId: String)(request: Request): ZIO[ReadingHandler, Failure, Response] =
-    ZIO.serviceWithZIO(_.update(readingId)(request))
+  def update(readingId: String, request: Request, userId: String): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.update(readingId, request, userId))
 
-  def delete(readingId: String): ZIO[ReadingHandler, Failure, Response] =
-    ZIO.serviceWithZIO(_.delete(readingId))
+  def delete(readingId: String, userId: String): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.delete(readingId, userId))
 }
 
 object ReadingHandlerLive {
 
-  val layer: URLayer[Database, ReadingHandler] =
-    ZLayer.fromZIO(ZIO.service[Database].map(toReadingHandler))
+  private val readingsPath = "/readings"
 
-  private def toReadingHandler(db: Database): ReadingHandler =
-    new ReadingHandler {
-      override val fetchAll: UIO[Response] = fetchAllFrom(db)
-
-      override def fetch(readingId: String): UIO[Response] = fetchFrom(db)(readingId)
-
-      override def create(request: Request): IO[Failure, Response] = createFrom(db)(request)
-
-      override def update(readingId: String)(request: Request): IO[Failure, Response] =
-        updateFrom(db)(readingId)(request)
-
-      override def delete(readingId: String): UIO[Response] = deleteFrom(db)(readingId)
-    }
-
-  private def toReadingId(readingId: String): ZIO[Any, Option[Nothing], ReadingId] =
+  private def toReadingId(readingId: String) =
     ZIO
       .fromOption(readingId.toLongOption)
-      .map(ReadingId)
+      .map(ReadingId(_))
 
-  private def fetchAllFrom(db: Database) =
-    db.fetchAllReadings
+  private def fetchAllFrom(db: GoogleSheetsService, userId: String) =
+    db.fetchAllReadings(userId)
       .fold(
         serverFailure,
-        readings => ok(Body.fromString(ReadingView.list(readings).toString))
+        readings => ok(Body.fromString(ReadingView.list(readings)))
       )
 
-  private def fetchFrom(db: Database)(readingId: String) =
+  private def fetchFrom(db: GoogleSheetsService, readingId: String, userId: String) =
     toReadingId(readingId)
       .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $readingId")),
         id =>
           db
-            .fetchReading(id)
+            .fetchReading(id, userId)
             .fold(
               serverFailure,
               {
                 case None          => notFound(Path(Vector(Segment(readingId))))
-                case Some(reading) => ok(Body.fromString(ReadingView.list(Seq(reading)).toString))
+                case Some(reading) => ok(Body.fromString(ReadingView.list(Seq(reading))))
               }
             )
       )
 
-  private def createFrom(db: Database)(request: Request) =
+  private def createFrom(db: GoogleSheetsService, request: Request, userId: String) =
     Query
       .fromRequest(request)
       .flatMap(requestQry =>
@@ -95,15 +79,15 @@ object ReadingHandlerLive {
             _ => ZIO.succeed(badRequest(requestQry.toString)),
             readingData =>
               db
-                .insertReading(readingData)
+                .insertReading(readingData.copy(userId = Some(userId)), userId)
                 .fold(
                   serverFailure,
-                  _ => seeOther(path = "/readings")
+                  _ => seeOther(readingsPath)
                 )
           )
       )
 
-  private def updateFrom(db: Database)(readingId: String)(request: Request) =
+  private def updateFrom(db: GoogleSheetsService, readingId: String, request: Request, userId: String) =
     Query
       .fromRequest(request)
       .flatMap(requestQry =>
@@ -112,24 +96,41 @@ object ReadingHandlerLive {
             _ => ZIO.succeed(badRequest(requestQry.toString)),
             id =>
               db
-                .updateReading(id, ReadingData.partialFromHttpQuery(requestQry))
+                .updateReading(id, ReadingData.partialFromHttpQuery(requestQry), userId)
                 .fold(
                   serverFailure,
-                  _ => seeOther("/readings")
+                  _ => seeOther(readingsPath)
                 )
           )
       )
 
-  private def deleteFrom(db: Database)(readingId: String) =
+  private def deleteFrom(db: GoogleSheetsService, readingId: String, userId: String) =
     toReadingId(readingId)
       .foldZIO(
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $readingId")),
         id =>
           db
-            .deleteReading(id)
+            .deleteReading(id, userId)
             .fold(
               serverFailure,
-              _ => seeOther("/readings")
+              _ => seeOther(readingsPath)
             )
       )
+
+  private def fromDatabase(db: GoogleSheetsService) =
+    new ReadingHandler {
+      override def fetchAll(userId: String): UIO[Response] = fetchAllFrom(db, userId)
+
+      override def fetch(readingId: String, userId: String): UIO[Response] = fetchFrom(db, readingId, userId)
+
+      override def create(request: Request, userId: String): IO[Failure, Response] = createFrom(db, request, userId)
+
+      override def update(readingId: String, request: Request, userId: String): IO[Failure, Response] =
+        updateFrom(db, readingId, request, userId)
+
+      override def delete(readingId: String, userId: String): UIO[Response] = deleteFrom(db, readingId, userId)
+    }
+
+  val layer: URLayer[GoogleSheetsService, ReadingHandler] =
+    ZLayer.fromZIO(ZIO.service[GoogleSheetsService].map(fromDatabase))
 }
