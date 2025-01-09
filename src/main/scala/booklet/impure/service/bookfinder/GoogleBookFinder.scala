@@ -9,12 +9,12 @@ import zio._
 import zio.json.DecoderOps
 
 trait GoogleBookFinder {
-  def findByIsbn(isbn: String): IO[Failure, Option[BookData]]
+  def findByIsbn(isbn: String, idToken: String): IO[Failure, Option[BookData]]
 }
 
 object GoogleBookFinder {
-  def findByIsbn(isbn: String): ZIO[GoogleBookFinder, Failure, Option[BookData]] =
-    ZIO.serviceWithZIO(_.findByIsbn(isbn))
+  def findByIsbn(isbn: String, idToken: String): ZIO[GoogleBookFinder, Failure, Option[BookData]] =
+    ZIO.serviceWithZIO(_.findByIsbn(isbn, idToken))
 }
 
 object GoogleBookFinderLive {
@@ -25,13 +25,13 @@ object GoogleBookFinderLive {
       channelFactory <- ZIO.service[ChannelFactory]
     } yield new GoogleBookFinder {
 
-      override def findByIsbn(isbn: String): IO[Failure, Option[BookData]] =
-        findByIsbnInternal(isbn.replaceAll("\\D", ""))
+      override def findByIsbn(isbn: String, idToken: String): IO[Failure, Option[BookData]] =
+        findByIsbnInternal(isbn.replaceAll("\\D", ""), idToken)
 
-      private def findByIsbnInternal(isbn: String): IO[Failure, Option[BookData]] =
+      private def findByIsbnInternal(isbn: String, idToken: String): IO[Failure, Option[BookData]] =
         for {
           response <- Client
-            .request(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
+            .request(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn", headers = List(("Authorization", s"Bearer $idToken")))
             .provide(ZLayer.succeed(eventLoopGroup), ZLayer.succeed(channelFactory))
             .mapError(Failure.fromThrowable)
           responseBody <- response.body.asString.mapError(Failure.fromThrowable)

@@ -10,11 +10,11 @@ object ReadingRouter {
   val app: Http[ReadingHandler, Nothing, Request, Response] =
     Http
       .collectZIO[Request] {
-        case GET -> !! / "readings"                     => ReadingHandler.fetchAll
-        case GET -> !! / "readings" / readingId         => ReadingHandler.fetch(readingId)
-        case req @ POST -> !! / "readings"              => ReadingHandler.create(req)
-        case req @ PATCH -> !! / "readings" / readingId => ReadingHandler.update(readingId)(req)
-        case DELETE -> !! / "readings" / readingId      => ReadingHandler.delete(readingId)
+        case req @ GET -> !! / "readings"                     => ReadingHandler.fetchAll(req)
+        case req @ GET -> !! / "readings" / readingId         => ReadingHandler.fetch(req, readingId)
+        case req @ POST -> !! / "readings"                    => ReadingHandler.create(req)
+        case req @ PATCH -> !! / "readings" / readingId       => ReadingHandler.update(req, readingId)
+        case req @ DELETE -> !! / "readings" / readingId      => ReadingHandler.delete(req, readingId)
       }
       .foldHttp(
         failure => Http.succeed(serverFailure(failure)),

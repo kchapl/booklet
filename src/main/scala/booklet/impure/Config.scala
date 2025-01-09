@@ -9,23 +9,21 @@ case class AppConfig(
     port: Int
 )
 
-case class DbConfig(
-    driver: String,
-    url: String,
-    userName: String,
-    password: String
-)
-
 case class BookLookupConfig(
     url: String,
     key: String,
     signInClientId: String
 )
 
+case class GoogleSheetsConfig(
+    clientId: String,
+    clientSecret: String
+)
+
 case class Config(
     app: AppConfig,
-    db: DbConfig,
-    bookLookup: BookLookupConfig
+    bookLookup: BookLookupConfig,
+    googleSheets: GoogleSheetsConfig
 )
 
 object Config {
