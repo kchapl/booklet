@@ -22,7 +22,8 @@ trait BookHandler {
 }
 
 object BookHandler {
-  def fetchAll(userId: String): ZIO[BookHandler, Failure, Response] = ZIO.serviceWithZIO(_.fetchAll(userId))
+  def fetchAll(userId: String): ZIO[BookHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.fetchAll(userId))
 
   def fetch(bookId: String, userId: String): ZIO[BookHandler, Failure, Response] =
     ZIO.serviceWithZIO(_.fetch(bookId, userId))
@@ -30,7 +31,11 @@ object BookHandler {
   def create(request: Request, userId: String): ZIO[BookHandler, Failure, Response] =
     ZIO.serviceWithZIO(_.create(request, userId))
 
-  def update(bookId: String, request: Request, userId: String): ZIO[BookHandler, Failure, Response] =
+  def update(
+      bookId: String,
+      request: Request,
+      userId: String
+  ): ZIO[BookHandler, Failure, Response] =
     ZIO.serviceWithZIO(_.update(bookId, request, userId))
 
   def delete(bookId: String, userId: String): ZIO[BookHandler, Failure, Response] =
@@ -87,7 +92,12 @@ object BookHandlerLive {
           )
       )
 
-  private def updateImpl(db: GoogleSheetsService, bookId: String, request: Request, userId: String) =
+  private def updateImpl(
+      db: GoogleSheetsService,
+      bookId: String,
+      request: Request,
+      userId: String
+  ) =
     Query
       .fromRequest(request)
       .flatMap(requestQry =>
@@ -121,14 +131,17 @@ object BookHandlerLive {
     new BookHandler {
       override def fetchAll(userId: String): UIO[Response] = fetchAllImpl(db, userId)
 
-      override def fetch(bookId: String, userId: String): UIO[Response] = fetchImpl(db, bookId, userId)
+      override def fetch(bookId: String, userId: String): UIO[Response] =
+        fetchImpl(db, bookId, userId)
 
-      override def create(request: Request, userId: String): IO[Failure, Response] = createImpl(db, request, userId)
+      override def create(request: Request, userId: String): IO[Failure, Response] =
+        createImpl(db, request, userId)
 
       override def update(bookId: String, request: Request, userId: String): IO[Failure, Response] =
         updateImpl(db, bookId, request, userId)
 
-      override def delete(bookId: String, userId: String): UIO[Response] = deleteImpl(db, bookId, userId)
+      override def delete(bookId: String, userId: String): UIO[Response] =
+        deleteImpl(db, bookId, userId)
     }
 
   val layer: URLayer[GoogleSheetsService, BookHandler] =

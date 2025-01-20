@@ -13,7 +13,9 @@ object RootRouter {
     case req @ POST -> !! / "api" / "authenticate" =>
       for {
         body <- req.bodyAsString
-        data <- ZIO.fromEither(body.fromJson[Map[String, String]]).orElseFail(http.CustomResponse.badRequest("Invalid JSON"))
+        data <- ZIO
+          .fromEither(body.fromJson[Map[String, String]])
+          .orElseFail(http.CustomResponse.badRequest("Invalid JSON"))
         idToken = data.getOrElse("id_token", "")
         userId = data.getOrElse("user_id", "")
         // Handle the ID token and user ID (e.g., store in session, validate, etc.)

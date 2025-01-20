@@ -22,7 +22,8 @@ trait ReadingHandler {
 }
 
 object ReadingHandler {
-  def fetchAll(userId: String): ZIO[ReadingHandler, Failure, Response] = ZIO.serviceWithZIO(_.fetchAll(userId))
+  def fetchAll(userId: String): ZIO[ReadingHandler, Failure, Response] =
+    ZIO.serviceWithZIO(_.fetchAll(userId))
 
   def fetch(readingId: String, userId: String): ZIO[ReadingHandler, Failure, Response] =
     ZIO.serviceWithZIO(_.fetch(readingId, userId))
@@ -30,7 +31,11 @@ object ReadingHandler {
   def create(request: Request, userId: String): ZIO[ReadingHandler, Failure, Response] =
     ZIO.serviceWithZIO(_.create(request, userId))
 
-  def update(readingId: String, request: Request, userId: String): ZIO[ReadingHandler, Failure, Response] =
+  def update(
+      readingId: String,
+      request: Request,
+      userId: String
+  ): ZIO[ReadingHandler, Failure, Response] =
     ZIO.serviceWithZIO(_.update(readingId, request, userId))
 
   def delete(readingId: String, userId: String): ZIO[ReadingHandler, Failure, Response] =
@@ -87,7 +92,12 @@ object ReadingHandlerLive {
           )
       )
 
-  private def updateFrom(db: GoogleSheetsService, readingId: String, request: Request, userId: String) =
+  private def updateFrom(
+      db: GoogleSheetsService,
+      readingId: String,
+      request: Request,
+      userId: String
+  ) =
     Query
       .fromRequest(request)
       .flatMap(requestQry =>
@@ -121,14 +131,21 @@ object ReadingHandlerLive {
     new ReadingHandler {
       override def fetchAll(userId: String): UIO[Response] = fetchAllFrom(db, userId)
 
-      override def fetch(readingId: String, userId: String): UIO[Response] = fetchFrom(db, readingId, userId)
+      override def fetch(readingId: String, userId: String): UIO[Response] =
+        fetchFrom(db, readingId, userId)
 
-      override def create(request: Request, userId: String): IO[Failure, Response] = createFrom(db, request, userId)
+      override def create(request: Request, userId: String): IO[Failure, Response] =
+        createFrom(db, request, userId)
 
-      override def update(readingId: String, request: Request, userId: String): IO[Failure, Response] =
+      override def update(
+          readingId: String,
+          request: Request,
+          userId: String
+      ): IO[Failure, Response] =
         updateFrom(db, readingId, request, userId)
 
-      override def delete(readingId: String, userId: String): UIO[Response] = deleteFrom(db, readingId, userId)
+      override def delete(readingId: String, userId: String): UIO[Response] =
+        deleteFrom(db, readingId, userId)
     }
 
   val layer: URLayer[GoogleSheetsService, ReadingHandler] =

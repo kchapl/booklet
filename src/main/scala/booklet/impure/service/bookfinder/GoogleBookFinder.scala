@@ -31,7 +31,10 @@ object GoogleBookFinderLive {
       private def findByIsbnInternal(isbn: String, idToken: String): IO[Failure, Option[BookData]] =
         for {
           response <- Client
-            .request(s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn", headers = List(("Authorization", s"Bearer $idToken")))
+            .request(
+              s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn",
+              headers = List(("Authorization", s"Bearer $idToken"))
+            )
             .provide(ZLayer.succeed(eventLoopGroup), ZLayer.succeed(channelFactory))
             .mapError(Failure.fromThrowable)
           responseBody <- response.body.asString.mapError(Failure.fromThrowable)
