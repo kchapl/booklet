@@ -10,11 +10,11 @@ object BookRouter {
   val app: Http[BookHandler, Nothing, Request, Response] =
     Http
       .collectZIO[Request] {
-        case req @ GET -> !! / "books"                  => BookHandler.fetchAll(req)
-        case req @ GET -> !! / "books" / bookId         => BookHandler.fetch(req, bookId)
-        case req @ POST -> !! / "books"                 => BookHandler.create(req)
-        case req @ PATCH -> !! / "books" / bookId       => BookHandler.update(req, bookId)
-        case req @ DELETE -> !! / "books" / bookId      => BookHandler.delete(req, bookId)
+        case req @ GET -> !! / "books"             => BookHandler.fetchAll(req)
+        case req @ GET -> !! / "books" / bookId    => BookHandler.fetch(req, bookId)
+        case req @ POST -> !! / "books"            => BookHandler.create(req)
+        case req @ PATCH -> !! / "books" / bookId  => BookHandler.update(req, bookId)
+        case req @ DELETE -> !! / "books" / bookId => BookHandler.delete(req, bookId)
       }
       .foldHttp(
         failure => Http.succeed(serverFailure(failure)),

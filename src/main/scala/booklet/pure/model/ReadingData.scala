@@ -5,7 +5,12 @@ import zio.json.{DeriveJsonEncoder, JsonEncoder}
 import java.time.LocalDate
 import scala.util.Try
 
-case class ReadingData(bookId: Option[BookId], completed: Option[LocalDate], rating: Option[Rating], userId: Option[String])
+case class ReadingData(
+    bookId: Option[BookId],
+    completed: Option[LocalDate],
+    rating: Option[Rating],
+    userId: Option[String]
+)
 
 object ReadingData {
   implicit val encoder: JsonEncoder[ReadingData] = DeriveJsonEncoder.gen[ReadingData]
