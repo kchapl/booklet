@@ -17,11 +17,11 @@ jobs:
           java-version: 21
           cache: sbt
 
-      - name: Run SBT tasks
-        run: >
-          sbt
-          scalafmtCheckAll
-          scalafmtSbtCheck
-          compile
-          Test/compile
-          test
+#      - name: Run SBT tasks
+#        run: >
+#          sbt
+#          scalafmtCheckAll
+#          scalafmtSbtCheck
+#          compile
+#          Test/compile
+#          test

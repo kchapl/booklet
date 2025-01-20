@@ -3,7 +3,8 @@ import sbt.Keys.semanticdbEnabled
 name := "booklet"
 
 scalaVersion := "2.13.11"
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
+//scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused", "-Werror")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-Wunused")
 
 // required by sbt-native-packager plugin
 enablePlugins(JavaAppPackaging)

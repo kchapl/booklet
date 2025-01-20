@@ -2,7 +2,7 @@ package booklet.impure.service
 
 import booklet.pure.Failure
 import booklet.pure.model.{BookData, BookId, ReadingData, ReadingId}
-import zio.{IO, Task, ZIO}
+import zio.{IO, Task, ZIO, ZLayer}
 
 trait GoogleSheetsService {
   def createSheet(userId: String): IO[Failure, String]
