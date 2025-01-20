@@ -64,7 +64,8 @@ object GoogleBookModel {
           Some(Title(info.title)),
           None,
           thumbnail = info.imageLinks.map(_.thumbnail),
-          smallThumbnail = info.imageLinks.map(_.smallThumbnail)
+          smallThumbnail = info.imageLinks.map(_.smallThumbnail),
+          ???
         )
       else None
   }

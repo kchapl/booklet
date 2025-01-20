@@ -33,7 +33,8 @@ object GoogleBookFinderLive {
           response <- Client
             .request(
               s"https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn",
-              headers = List(("Authorization", s"Bearer $idToken"))
+              //headers = List(("Authorization", s"Bearer $idToken")),
+              ???
             )
             .provide(ZLayer.succeed(eventLoopGroup), ZLayer.succeed(channelFactory))
             .mapError(Failure.fromThrowable)

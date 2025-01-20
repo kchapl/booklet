@@ -120,7 +120,7 @@ object BookHandlerLive {
         _ => ZIO.succeed(badRequest(s"Cannot parse ID $bookId")),
         id =>
           db
-            .deleteBook(id, userId)
+            .deleteBook(userId, id)
             .fold(
               serverFailure,
               _ => seeOther(booksPath)

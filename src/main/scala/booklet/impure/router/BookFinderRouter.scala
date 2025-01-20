@@ -14,7 +14,7 @@ object BookFinderRouter {
         case None => ZIO.succeed(badRequest("Missing ISBN"))
         case Some(isbn) =>
           GoogleBookFinder
-            .findByIsbn(isbn)
+            .findByIsbn(isbn, ???)
             .fold(
               serverFailure,
               {

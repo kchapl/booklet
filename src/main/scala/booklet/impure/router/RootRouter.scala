@@ -4,6 +4,7 @@ import booklet.pure.http
 import booklet.pure.views.RootView
 import zhttp.http.Method.{GET, POST}
 import zhttp.http._
+import zio.ZIO
 import zio.json._
 
 object RootRouter {
