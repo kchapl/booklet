@@ -1,4 +1,5 @@
-import { Config, ConfigLive } from './Config';
+import { Config } from './Config';
+import { ConfigLive } from './ConfigLive';
 import { BookRouter } from './router/BookRouter';
 import { ReadingRouter } from './router/ReadingRouter';
 import { RootRouter } from './router/RootRouter';

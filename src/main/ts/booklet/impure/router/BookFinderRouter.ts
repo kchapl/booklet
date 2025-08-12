@@ -1,4 +1,4 @@
-import { Http, Request, Response } from 'some-http-library';
+import { Http, Request, Response } from 'zhttp/http';
 import { GoogleBookFinder } from '../service/GoogleBookFinder';
 import { Failure } from '../../pure/Failure';
 import { CustomResponse } from '../../pure/http/CustomResponse';
